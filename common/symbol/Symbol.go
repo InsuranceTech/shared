@@ -2,7 +2,7 @@
 package symbol
 
 import (
-	"github.com/InsuranceTech/commons/common/period"
+	"github.com/InsuranceTech/shared/common/period"
 	"strconv"
 	"strings"
 )

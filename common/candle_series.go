@@ -3,7 +3,7 @@ package common
 
 import (
 	"errors"
-	"github.com/InsuranceTech/commons/common/period"
+	"github.com/InsuranceTech/shared/common/period"
 	"math"
 	"sort"
 	"time"

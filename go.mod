@@ -1,4 +1,4 @@
-module github.com/InsuranceTech/commons
+module github.com/InsuranceTech/shared
 
 go 1.20
 

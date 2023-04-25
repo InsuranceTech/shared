@@ -3,8 +3,8 @@ package redis
 import (
 	"context"
 	"fmt"
-	"github.com/InsuranceTech/commons/common/symbol"
-	"github.com/InsuranceTech/commons/config"
+	"github.com/InsuranceTech/shared/common/symbol"
+	"github.com/InsuranceTech/shared/config"
 	"github.com/redis/go-redis/v9"
 )
 

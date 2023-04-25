@@ -2,9 +2,9 @@ package common
 
 import (
 	"context"
-	"github.com/InsuranceTech/commons/common/period"
-	"github.com/InsuranceTech/commons/common/symbol"
-	"github.com/InsuranceTech/commons/services/redis"
+	"github.com/InsuranceTech/shared/common/period"
+	"github.com/InsuranceTech/shared/common/symbol"
+	"github.com/InsuranceTech/shared/services/redis"
 )
 
 type PeriodicCandleSeries struct {

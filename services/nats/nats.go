@@ -2,9 +2,9 @@ package nats
 
 import (
 	"fmt"
-	"github.com/InsuranceTech/commons/common"
-	"github.com/InsuranceTech/commons/common/symbol"
-	"github.com/InsuranceTech/commons/config"
+	"github.com/InsuranceTech/shared/common"
+	"github.com/InsuranceTech/shared/common/symbol"
+	"github.com/InsuranceTech/shared/config"
 	"github.com/nats-io/nats.go"
 )
 
