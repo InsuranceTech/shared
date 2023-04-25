@@ -181,6 +181,10 @@ func (series *CandleSeries) UpdateLimit() {
 //	return periodSeries, nil
 //}
 
+func (series *CandleSeries) Required(count int) bool {
+	return series.Len() >= count
+}
+
 func (series *CandleSeries) ToPeriods(fromPeriod period.Period, toPeriod period.Period, limit int) (*CandleSeries, error) {
 	if toPeriod < fromPeriod {
 		return nil, errors.New("sadece üst zaman dilimine çevrilebilir")
