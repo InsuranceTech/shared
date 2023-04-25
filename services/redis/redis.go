@@ -3,7 +3,7 @@ package redis
 import (
 	"context"
 	"fmt"
-	"github.com/InsuranceTech/shared/common"
+	cm "github.com/InsuranceTech/shared/common"
 	"github.com/InsuranceTech/shared/common/depth"
 	"github.com/InsuranceTech/shared/common/period"
 	"github.com/InsuranceTech/shared/common/symbol"
@@ -50,7 +50,7 @@ func GetkeyDepth(symbol *symbol.Symbol) string {
 	return fmt.Sprintf("%s:Depth", symbol.ToStringNoPeriod())
 }
 
-func SaveCandleSeries(periodicSeries *common.PeriodicCandleSeries, period period.Period) bool {
+func SaveCandleSeries(periodicSeries *cm.PeriodicCandleSeries, period period.Period) bool {
 	series := periodicSeries.Get(period)
 	if series == nil {
 		return false
@@ -68,7 +68,7 @@ func SaveCandleSeries(periodicSeries *common.PeriodicCandleSeries, period period
 	return true
 }
 
-func SaveCandleSeriesAsync(periodicSeries *common.PeriodicCandleSeries, period period.Period, onComplete func(status bool)) {
+func SaveCandleSeriesAsync(periodicSeries *cm.PeriodicCandleSeries, period period.Period, onComplete func(status bool)) {
 	go func() {
 		status := SaveCandleSeries(periodicSeries, period)
 		if onComplete != nil {
@@ -77,7 +77,7 @@ func SaveCandleSeriesAsync(periodicSeries *common.PeriodicCandleSeries, period p
 	}()
 }
 
-func GetCandleSeries(symbol *symbol.Symbol) (*common.CandleSeries, error) {
+func GetCandleSeries(symbol *symbol.Symbol) (*cm.CandleSeries, error) {
 	key := GetkeyCandles(symbol)
 	cmdStatus := Client.Get(context.Background(), key)
 	if cmdStatus.Err() != nil {
@@ -87,7 +87,7 @@ func GetCandleSeries(symbol *symbol.Symbol) (*common.CandleSeries, error) {
 	if err != nil {
 		return nil, err
 	}
-	series := &common.CandleSeries{}
+	series := &cm.CandleSeries{}
 	_, err = series.UnmarshalMsg(bytes)
 	if err != nil {
 		return nil, err
