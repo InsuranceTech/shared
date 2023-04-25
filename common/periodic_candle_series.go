@@ -1,10 +1,8 @@
 package common
 
 import (
-	"context"
 	"github.com/InsuranceTech/shared/common/period"
 	"github.com/InsuranceTech/shared/common/symbol"
-	"github.com/InsuranceTech/shared/services/redis"
 )
 
 type PeriodicCandleSeries struct {
@@ -45,33 +43,6 @@ func (p *PeriodicCandleSeries) InsertCandle(period period.Period, candle *Candle
 	}
 	series.InsertCandle(candle)
 	return true
-}
-
-func (p *PeriodicCandleSeries) SaveRedis(period period.Period) bool {
-	series := p.Get(period)
-	if series == nil {
-		return false
-	}
-	bytes, err := series.MarshalMsg(nil)
-	if err != nil {
-		panic(err)
-	}
-
-	key := redis.GetkeyCandles(p.Symbol.CloneP(period))
-	status := redis.Client.Set(context.Background(), key, bytes, 0)
-	if status.Err() != nil {
-		panic(status.Err())
-	}
-	return true
-}
-
-func (p *PeriodicCandleSeries) SaveRedisAsync(period period.Period, onComplete func(status bool)) {
-	go func() {
-		status := p.SaveRedis(period)
-		if onComplete != nil {
-			onComplete(status)
-		}
-	}()
 }
 
 func (p *PeriodicCandleSeries) CreatePeriodSource(period period.Period, source *CandleSeries) bool {
