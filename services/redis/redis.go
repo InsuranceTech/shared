@@ -19,13 +19,8 @@ func Init(ctx context.Context, cfg *config.Config) {
 		ClientName: cfg.Server.SERVICE_NAME,
 		Addr:       fmt.Sprintf("%s:%d", cfg.Redis.HOST, cfg.Redis.PORT),
 		Password:   cfg.Redis.PASS,
-		//Addr:     "localhost:49153",
-		//Password: "redispw",
-		DB: cfg.Redis.DEFAULT_DB,
-		//PoolSize:     1,
-		//MaxIdleConns: 1,
-		//PoolTimeout:  time.Second * 60,
-		OnConnect: OnConnect,
+		DB:         cfg.Redis.DEFAULT_DB,
+		OnConnect:  OnConnect,
 	})
 	status := Client.Ping(ctx)
 	if status.Err() == nil {
@@ -34,7 +29,6 @@ func Init(ctx context.Context, cfg *config.Config) {
 		fmt.Println("Redis : ", "Connection error!")
 		panic(status.Err())
 	}
-
 }
 
 func OnConnect(ctx context.Context, conn *redis.Conn) error {

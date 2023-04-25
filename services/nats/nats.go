@@ -77,3 +77,19 @@ func OnClosedCandleSymbols(handler func(symbol *symbol.Symbol, candle *common.Ca
 		}()
 	})
 }
+
+func TriggerClosedCandle(symbol *symbol.Symbol, candle *common.Candle) {
+	candleBytes, err := candle.MarshalMsg(nil)
+	if err != nil {
+		panic(err)
+	}
+	msg := nats.Msg{
+		Subject: fmt.Sprintf("%s.ClosedCandle", symbol.ToString()),
+		Header:  map[string][]string{"symbol": {symbol.ToString()}},
+		Data:    candleBytes,
+	}
+	err = Client.PublishMsg(&msg)
+	if err != nil {
+		panic(err)
+	}
+}
