@@ -30,7 +30,7 @@ func Ping() (bool, error) {
 func GetAllSymbols() ([]*model.Symbol, error) {
 	conn := NewDBConn()
 	defer conn.Close()
-	var symbols []*model.Symbol
+	var symbols = make([]*model.Symbol, 0)
 
 	err := pg.Model(&symbols).
 		Relation("BaseCoin").
