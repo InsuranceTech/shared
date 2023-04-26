@@ -81,6 +81,7 @@ type Postgresql struct {
 	DEFAULT_DB string `mapstructure:"DEFAULT_DB,omitempty"`
 	MAX_CONN   int    `mapstructure:"MAX_CONN,omitempty"`
 	DRIVER     string `mapstructure:"DRIVER,omitempty"`
+	SCHEMA     string `mapstructure:"SCHEMA,omitempty"`
 }
 
 // Mysql config
