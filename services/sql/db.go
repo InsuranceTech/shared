@@ -32,7 +32,7 @@ func GetAllSymbols() ([]*model.Symbol, error) {
 	defer conn.Close()
 	var symbols = make([]*model.Symbol, 0)
 
-	err := pg.Model(&symbols).
+	err := conn.Model(&symbols).
 		Relation("BaseCoin").
 		Relation("QuoteCoin").
 		Select()
