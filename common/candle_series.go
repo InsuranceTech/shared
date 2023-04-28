@@ -18,7 +18,12 @@ type CandleSeries struct {
 // AddCandle Son mum tarihini kontrol eder, aynıysa günceller
 func (series *CandleSeries) AddCandle(candle *Candle) bool {
 	candleLen := len(series.Candles)
-	if candleLen > 0 && series.Candles[len(series.Candles)-1].Date.Unix() == candle.Date.Unix() {
+
+	if candleLen > 0 && candle.Date.Unix() < series.Candles[len(series.Candles)-1].Date.Unix() {
+		// Hata
+		panic("Son mumdan daha eski tarihli bir mum eklenmeye çalıştı.")
+		return false
+	} else if candleLen > 0 && series.Candles[len(series.Candles)-1].Date.Unix() == candle.Date.Unix() {
 		// Güncelle
 		series.Candles[len(series.Candles)-1] = candle
 		if series.OnChangeSeries != nil {
