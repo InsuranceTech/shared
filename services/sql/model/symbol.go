@@ -1,5 +1,10 @@
 package model
 
+import (
+	"github.com/InsuranceTech/shared/common/period"
+	"github.com/InsuranceTech/shared/common/symbol"
+)
+
 type Symbol struct {
 	tableName    struct{} `pg:"symbols"`
 	ID           int      `pg:"id,pk"`
@@ -18,4 +23,12 @@ type Symbol struct {
 	TickSize     float64  `pg:"tick_size"`
 	MaxPrice     float64  `pg:"max_price"`
 	MinNotional  float64  `pg:"min_notional"`
+}
+
+func (s *Symbol) ToSymbol() *symbol.Symbol {
+	return symbol.NewSymbol(symbol.ExchangeType(s.ExchangeType), s.Name, period.NonePeriod)
+}
+
+func (s *Symbol) ToSymbolPeriod(period period.Period) *symbol.Symbol {
+	return symbol.NewSymbol(symbol.ExchangeType(s.ExchangeType), s.Name, period)
 }
