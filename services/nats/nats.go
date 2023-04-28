@@ -12,7 +12,6 @@ var Client *nats.Conn
 
 func Init(cfg *config.Config) {
 	connStr := fmt.Sprintf("nats://%s:%s@%s:%d", cfg.Nats.USER, cfg.Nats.PASS, cfg.Nats.HOST, cfg.Nats.CLIENT_PORT)
-	println(connStr)
 	err := error(nil)
 	option := func(option *nats.Options) error {
 		option.ClosedCB = onCloseConnection

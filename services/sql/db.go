@@ -44,6 +44,21 @@ func GetAllSymbols() ([]*model.Symbol, error) {
 	return symbols, nil
 }
 
+func GetAllIndicators() ([]*model.Indicator, error) {
+	conn := NewDBConn()
+	defer conn.Close()
+	var indicators = make([]*model.Indicator, 0)
+
+	err := conn.Model(&indicators).
+		Select()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return indicators, nil
+}
+
 func NewDBConn() (con *pg.DB) {
 	address := fmt.Sprintf("%s:%s", cfg.Postgresql.HOST, strconv.Itoa(cfg.Postgresql.PORT))
 	options := &pg.Options{
