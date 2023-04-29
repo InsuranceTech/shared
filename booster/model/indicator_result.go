@@ -1,4 +1,4 @@
-//go:generate msgp -o=indicator_msgpack.go -tests=false
+//go:generate msgp -o=indicator_result_msgpack.go -tests=false
 package model
 
 import (
@@ -8,7 +8,7 @@ import (
 
 type IndicatorResult struct {
 	Symbol      *symbol.Symbol
-	IndicatorID int
+	IndicatorID int64
 	FuncName    string
 	Values      map[string][]float64
 	CandleTime  *time.Time

@@ -50,7 +50,7 @@ func GetkeyCandles(symbol *symbol.Symbol) string {
 // GetkeyIndicatorResult
 // Redisteki adresini döndürür
 // Örnek: BINANCE_SPOT:BTCUSDT:5:Candles
-func GetkeyIndicatorResult(symbol *symbol.Symbol, indicatorId int) string {
+func GetkeyIndicatorResult(symbol *symbol.Symbol, indicatorId int64) string {
 	return fmt.Sprintf("%s:Indicators:%d", symbol.ToString(), indicatorId)
 }
 
@@ -144,7 +144,7 @@ func SaveIndicatorResult(data *boosterModels.IndicatorResult) error {
 	return nil
 }
 
-func GetIndicatorResult(symbol *symbol.Symbol, indicatorID int) (*boosterModels.IndicatorResult, error) {
+func GetIndicatorResult(symbol *symbol.Symbol, indicatorID int64) (*boosterModels.IndicatorResult, error) {
 	redisKey := GetkeyIndicatorResult(symbol, indicatorID)
 	cmdStatus := Client.Get(context.Background(), redisKey)
 	if cmdStatus.Err() != nil {
