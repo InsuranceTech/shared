@@ -3,6 +3,7 @@ package redis
 import (
 	"context"
 	"fmt"
+	boosterModels "github.com/InsuranceTech/shared/booster/model"
 	"github.com/InsuranceTech/shared/common"
 	"github.com/InsuranceTech/shared/common/depth"
 	"github.com/InsuranceTech/shared/common/period"
@@ -44,6 +45,13 @@ func OnConnect(ctx context.Context, conn *redis.Conn) error {
 // Örnek: BINANCE_SPOT:BTCUSDT:5:Candles
 func GetkeyCandles(symbol *symbol.Symbol) string {
 	return fmt.Sprintf("%s:Candles", symbol.ToString())
+}
+
+// GetkeyIndicatorResult
+// Redisteki adresini döndürür
+// Örnek: BINANCE_SPOT:BTCUSDT:5:Candles
+func GetkeyIndicatorResult(symbol *symbol.Symbol, indicatorId int) string {
+	return fmt.Sprintf("%s:Indicators:%d", symbol.ToString(), indicatorId)
 }
 
 func GetkeyDepth(symbol *symbol.Symbol) string {
@@ -121,4 +129,32 @@ func GetDepthData(symbol *symbol.Symbol) (*depth.DepthData, error) {
 		return nil, err
 	}
 	return depthData, nil
+}
+
+func SaveIndicatorResult(data *boosterModels.IndicatorResult) error {
+	key := GetkeyIndicatorResult(data.Symbol, data.IndicatorID)
+	bytes, err := data.MarshalMsg(nil)
+	if err != nil {
+		return err
+	}
+	cmdStatus := Client.Set(context.Background(), key, bytes, 0)
+	if cmdStatus.Err() != nil {
+		return cmdStatus.Err()
+	}
+	return nil
+}
+
+func GetIndicatorResult(symbol *symbol.Symbol, indicatorID int) (*boosterModels.IndicatorResult, error) {
+	redisKey := GetkeyIndicatorResult(symbol, indicatorID)
+	cmdStatus := Client.Get(context.Background(), redisKey)
+	if cmdStatus.Err() != nil {
+		return nil, cmdStatus.Err()
+	}
+	bytes, _ := cmdStatus.Bytes()
+	data := &boosterModels.IndicatorResult{}
+	_, err := data.UnmarshalMsg(bytes)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
 }
