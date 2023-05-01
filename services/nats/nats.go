@@ -5,10 +5,14 @@ import (
 	"github.com/InsuranceTech/shared/common"
 	"github.com/InsuranceTech/shared/common/symbol"
 	"github.com/InsuranceTech/shared/config"
+	"github.com/InsuranceTech/shared/log"
 	"github.com/nats-io/nats.go"
 )
 
-var Client *nats.Conn
+var (
+	Client *nats.Conn
+	_log   = log.CreateTag("Nats")
+)
 
 func Init(cfg *config.Config) {
 	connStr := fmt.Sprintf("nats://%s:%s@%s:%d", cfg.Nats.USER, cfg.Nats.PASS, cfg.Nats.HOST, cfg.Nats.CLIENT_PORT)
@@ -22,24 +26,28 @@ func Init(cfg *config.Config) {
 	}
 	Client, err = nats.Connect(connStr, option)
 	if err != nil {
-		panic(err)
+		_log.Fatal("Nats bağlantısı kurulamadı.", err)
 	}
 }
 
 func onReConnected(conn *nats.Conn) {
-	fmt.Println("NATSIO : ", "Reconnected", conn.Opts.Url)
+	_log.Info("Reconnected ", conn.Opts.Url)
 }
 
 func onConnected(conn *nats.Conn) {
-	fmt.Println("NATSIO : ", "Connected", conn.Opts.Url)
+	_log.Info("Connected ", conn.Opts.Url)
 }
 
 func onCloseConnection(conn *nats.Conn) {
-	fmt.Println("NATSIO : ", "Closed Connection", conn.Opts.Url)
+	_log.Info("Closed Connection ", conn.Opts.Url)
 }
 
 func onDisconnectConnection(conn *nats.Conn, err error) {
-	fmt.Println("NATSIO : ", "Disconnected", conn.Opts.Url, err)
+	if err == nil {
+		_log.Info("Disconnect ", conn.Opts.Url)
+	} else {
+		_log.Error("Disconnect ", conn.Opts.Url, err)
+	}
 }
 
 func OnClosedCandleSymbol(symbol *symbol.Symbol, handler func(candle *common.Candle)) {

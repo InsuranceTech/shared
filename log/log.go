@@ -27,14 +27,14 @@ func write(mtype string, text string, tag string) {
 	}
 }
 
-func CreateTag(tagName string) *TaggedLogger {
+func CreateTagID(tagName string) *TaggedLogger {
 	atomic.AddInt64(&counter, 1)
 	return &TaggedLogger{
 		Tag: tagName + "#" + strconv.Itoa(int(counter)),
 	}
 }
 
-func CreateTagID(tagName string) *TaggedLogger {
+func CreateTag(tagName string) *TaggedLogger {
 	return &TaggedLogger{
 		Tag: tagName,
 	}

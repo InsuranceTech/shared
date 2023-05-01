@@ -4,13 +4,15 @@ import (
 	"context"
 	"fmt"
 	"github.com/InsuranceTech/shared/config"
+	"github.com/InsuranceTech/shared/log"
 	"github.com/InsuranceTech/shared/services/sql/model"
 	"github.com/go-pg/pg/v10"
 	"strconv"
 )
 
 var (
-	cfg *config.Config
+	cfg  *config.Config
+	_log = log.CreateTag("Sql")
 )
 
 func SetConfig(cf *config.Config) {
@@ -38,6 +40,7 @@ func GetAllSymbols() ([]*model.Symbol, error) {
 		Select()
 
 	if err != nil {
+		_log.Error("GetAllSymbols", err)
 		return nil, err
 	}
 
@@ -53,6 +56,7 @@ func GetAllIndicators() ([]*model.Indicator, error) {
 		Select()
 
 	if err != nil {
+		_log.Error("GetAllIndicators", err)
 		return nil, err
 	}
 
@@ -70,7 +74,7 @@ func NewDBConn() (con *pg.DB) {
 			if cfg.Postgresql.SCHEMA != "" {
 				_, err := conn.Exec("set search_path=?", cfg.Postgresql.SCHEMA)
 				if err != nil {
-					panic(err.Error())
+					_log.Fatal("NewDBConn.OnConnect", err)
 				}
 			}
 			return nil

@@ -9,6 +9,7 @@ import (
 	"github.com/InsuranceTech/shared/common/period"
 	"github.com/InsuranceTech/shared/common/symbol"
 	"github.com/InsuranceTech/shared/config"
+	"github.com/InsuranceTech/shared/log"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -16,6 +17,7 @@ import (
 
 var (
 	Client *redis.Client
+	_log   = log.CreateTag("Redis")
 )
 
 func Init(ctx context.Context, cfg *config.Config) {
@@ -28,15 +30,14 @@ func Init(ctx context.Context, cfg *config.Config) {
 	})
 	status := Client.Ping(ctx)
 	if status.Err() == nil {
-		fmt.Println("Redis : ", "Connected")
+		_log.Info("Connected")
 	} else {
-		fmt.Println("Redis : ", "Connection error!")
-		panic(status.Err())
+		_log.Fatal("Connection Error", status.Err())
 	}
 }
 
 func OnConnect(ctx context.Context, conn *redis.Conn) error {
-	fmt.Println("Redis : ", "Connected")
+	_log.Info("Connected")
 	return nil
 }
 
@@ -65,13 +66,15 @@ func SaveCandleSeries(periodicSeries *common.PeriodicCandleSeries, period period
 	}
 	bytes, err := series.MarshalMsg(nil)
 	if err != nil {
-		panic(err)
+		_log.Error("SaveCandleSeries.MarshalMsg", err)
+		return false
 	}
 
 	key := GetkeyCandles(periodicSeries.Symbol.CloneP(period))
 	status := Client.Set(context.Background(), key, bytes, 0)
 	if status.Err() != nil {
-		panic(status.Err())
+		_log.Error("SaveCandleSeries.Redis.Set", status.Err())
+		return false
 	}
 	return true
 }
@@ -98,6 +101,7 @@ func GetCandleSeries(symbol *symbol.Symbol) (*common.CandleSeries, error) {
 	series := &common.CandleSeries{}
 	_, err = series.UnmarshalMsg(bytes)
 	if err != nil {
+		_log.Error("GetCandleSeries.UnMarshalMsg", err, symbol.ToString())
 		return nil, err
 	}
 	return series, nil
@@ -107,10 +111,12 @@ func SaveDepthData(symbol *symbol.Symbol, depthData *depth.DepthData) error {
 	key := GetkeyDepth(symbol)
 	bytes, err := depthData.MarshalMsg(nil)
 	if err != nil {
+		_log.Error("SaveDepthData.MarshalMsg", err, symbol.ToString())
 		return err
 	}
 	cmdStatus := Client.Set(context.Background(), key, bytes, 0)
 	if cmdStatus.Err() != nil {
+		_log.Error("SaveDepthData.Redis.Set", err, symbol.ToString())
 		return cmdStatus.Err()
 	}
 	return nil
@@ -126,6 +132,7 @@ func GetDepthData(symbol *symbol.Symbol) (*depth.DepthData, error) {
 	depthData := &depth.DepthData{}
 	_, err := depthData.UnmarshalMsg(bytes)
 	if err != nil {
+		_log.Error("GetDepthData.UnmarshalMsg", err, symbol.ToString())
 		return nil, err
 	}
 	return depthData, nil
@@ -135,10 +142,12 @@ func SaveIndicatorResult(data *boosterModels.IndicatorResult) error {
 	key := GetkeyIndicatorResult(data.Symbol, data.IndicatorID)
 	bytes, err := data.MarshalMsg(nil)
 	if err != nil {
+		_log.Error("SaveIndicatorResult.MarshalMsg", err, data.Symbol.ToString())
 		return err
 	}
 	cmdStatus := Client.Set(context.Background(), key, bytes, 0)
 	if cmdStatus.Err() != nil {
+		_log.Error("SaveIndicatorResult.Redis.Set", cmdStatus.Err(), data.Symbol.ToString())
 		return cmdStatus.Err()
 	}
 	return nil
@@ -154,6 +163,7 @@ func GetIndicatorResult(symbol *symbol.Symbol, indicatorID int64) (*boosterModel
 	data := &boosterModels.IndicatorResult{}
 	_, err := data.UnmarshalMsg(bytes)
 	if err != nil {
+		_log.Error("GetIndicatorResult.UnmarshalMsg", err, data.Symbol.ToString())
 		return nil, err
 	}
 	return data, nil
