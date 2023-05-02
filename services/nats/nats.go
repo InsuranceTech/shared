@@ -2,11 +2,14 @@ package nats
 
 import (
 	"fmt"
+	boosterModels "github.com/InsuranceTech/shared/booster/model"
 	"github.com/InsuranceTech/shared/common"
 	"github.com/InsuranceTech/shared/common/symbol"
 	"github.com/InsuranceTech/shared/config"
 	"github.com/InsuranceTech/shared/log"
 	"github.com/nats-io/nats.go"
+	"github.com/spf13/cast"
+	"strconv"
 )
 
 var (
@@ -50,11 +53,10 @@ func onDisconnectConnection(conn *nats.Conn, err error) {
 	}
 }
 
+// region Subscribes
 func OnClosedCandleSymbol(symbol *symbol.Symbol, handler func(candle *common.Candle)) {
 	subject := fmt.Sprintf("%s.ClosedCandle", symbol.ToString())
 	Client.Subscribe(subject, func(msg *nats.Msg) {
-		closedSymbol := msg.Header.Get("symbol")
-		fmt.Println(closedSymbol)
 		candle := &common.Candle{}
 		_, err := candle.UnmarshalMsg(msg.Data)
 		if err != nil {
@@ -69,10 +71,10 @@ func OnClosedCandleSymbol(symbol *symbol.Symbol, handler func(candle *common.Can
 func OnClosedCandleSymbols(handler func(symbol *symbol.Symbol, candle *common.Candle)) {
 	subject := "*.ClosedCandle"
 	Client.Subscribe(subject, func(msg *nats.Msg) {
-		closedSymbol := msg.Header.Get("symbol")
-		symbol, parseOk := symbol.ParseSymbolEx(closedSymbol)
+		_symbol := msg.Header.Get("symbol")
+		symbol, parseOk := symbol.ParseSymbolEx(_symbol)
 		if parseOk == false {
-			panic("Symbol parse error : " + closedSymbol)
+			log.Error("Nats.OnClosedCandleSymbols", "Symbol parse error : "+_symbol)
 		}
 		candle := &common.Candle{}
 		_, err := candle.UnmarshalMsg(msg.Data)
@@ -85,6 +87,37 @@ func OnClosedCandleSymbols(handler func(symbol *symbol.Symbol, candle *common.Ca
 	})
 }
 
+func OnChangeBoosterSignals(handler func(symbol *symbol.Symbol, funcName string, signal int16, indicatorId int64)) {
+	subject := "*.BoosterSignal"
+	Client.Subscribe(subject, func(msg *nats.Msg) {
+		_symbol := msg.Header.Get("symbol")
+		symbol, parseOk := symbol.ParseSymbolEx(_symbol)
+		if parseOk == false {
+			log.Error("Nats.OnChangeBoosterSignals", "Symbol parse error : "+_symbol)
+			return
+		}
+		_funcName := msg.Header.Get("funcName")
+		_indicatorId := msg.Header.Get("indicatorId")
+		_signal := msg.Header.Get("signal")
+		indicatorId, err := cast.ToInt64E(_indicatorId)
+		if err != nil {
+			log.Error("Nats.OnChangeBoosterSignals", "indicatorId casting error", err)
+			return
+		}
+		signal, err := cast.ToInt16E(_signal)
+		if err != nil {
+			log.Error("Nats.OnChangeBoosterSignals", "signal casting error", err)
+			return
+		}
+		go func() {
+			handler(symbol, _funcName, signal, indicatorId)
+		}()
+	})
+}
+
+//endregion
+
+// region Triggers
 func TriggerClosedCandle(symbol *symbol.Symbol, candle *common.Candle) {
 	candleBytes, err := candle.MarshalMsg(nil)
 	if err != nil {
@@ -100,3 +133,22 @@ func TriggerClosedCandle(symbol *symbol.Symbol, candle *common.Candle) {
 		panic(err)
 	}
 }
+
+func TriggerChangedBoosterSignal(symbol *symbol.Symbol, data boosterModels.IndicatorResult) {
+	msg := nats.Msg{
+		Subject: fmt.Sprintf("%s.%s.BoosterSignal", symbol.ToString(), data.FuncName),
+		Header: map[string][]string{
+			"symbol":      {symbol.ToString()},
+			"funcName":    {data.FuncName},
+			"indicatorId": {strconv.Itoa(int(data.IndicatorID))},
+			"signal":      {strconv.Itoa(int(data.Signal))},
+		},
+		Data: nil,
+	}
+	err := Client.PublishMsg(&msg)
+	if err != nil {
+		panic(err)
+	}
+}
+
+//endregion
