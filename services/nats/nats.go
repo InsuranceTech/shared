@@ -134,11 +134,11 @@ func TriggerClosedCandle(symbol *symbol.Symbol, candle *common.Candle) {
 	}
 }
 
-func TriggerChangedBoosterSignal(symbol *symbol.Symbol, data boosterModels.IndicatorResult) {
+func TriggerChangedBoosterSignal(data boosterModels.IndicatorResult) {
 	msg := nats.Msg{
-		Subject: fmt.Sprintf("%s.%s.BoosterSignal", symbol.ToString(), data.FuncName),
+		Subject: fmt.Sprintf("%s.%s.BoosterSignal", data.Symbol.ToString(), data.FuncName),
 		Header: map[string][]string{
-			"symbol":      {symbol.ToString()},
+			"symbol":      {data.Symbol.ToString()},
 			"funcName":    {data.FuncName},
 			"indicatorId": {strconv.Itoa(int(data.IndicatorID))},
 			"signal":      {strconv.Itoa(int(data.Signal))},
