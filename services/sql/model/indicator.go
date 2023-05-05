@@ -12,5 +12,11 @@ type Indicator struct {
 	CanScanner      bool     `pg:"can_adv_filter"`
 	CanAlarm        bool     `pg:"can_alarm"`
 	CanBoosterTable bool     `pg:"can_booster_tbl"`
+	BundleFuncName  string   `pg:"bundle_func_name"`
+	BundleOutName   string   `pg:"bundle_out_name"`
 	Status          bool     `pg:"status"`
+}
+
+func (i *Indicator) IsBundle() bool {
+	return i.BundleFuncName != ""
 }

@@ -74,7 +74,7 @@ func OnClosedCandleSymbols(handler func(symbol *symbol.Symbol, candle *common.Ca
 		_symbol := msg.Header.Get("symbol")
 		symbol, parseOk := symbol.ParseSymbolEx(_symbol)
 		if parseOk == false {
-			log.Error("Nats.OnClosedCandleSymbols", "Symbol parse error : "+_symbol)
+			_log.Error("OnClosedCandleSymbols", "Symbol parse error : "+_symbol)
 		}
 		candle := &common.Candle{}
 		_, err := candle.UnmarshalMsg(msg.Data)
@@ -93,7 +93,7 @@ func OnChangeBoosterSignals(handler func(symbol *symbol.Symbol, funcName string,
 		_symbol := msg.Header.Get("symbol")
 		symbol, parseOk := symbol.ParseSymbolEx(_symbol)
 		if parseOk == false {
-			log.Error("Nats.OnChangeBoosterSignals", "Symbol parse error : "+_symbol)
+			_log.Error("Nats.OnChangeBoosterSignals", "Symbol parse error : "+_symbol)
 			return
 		}
 		_funcName := msg.Header.Get("funcName")
@@ -101,12 +101,12 @@ func OnChangeBoosterSignals(handler func(symbol *symbol.Symbol, funcName string,
 		_signal := msg.Header.Get("signal")
 		indicatorId, err := cast.ToInt64E(_indicatorId)
 		if err != nil {
-			log.Error("Nats.OnChangeBoosterSignals", "indicatorId casting error", err)
+			_log.Error("Nats.OnChangeBoosterSignals", "indicatorId casting error", err)
 			return
 		}
 		signal, err := cast.ToInt16E(_signal)
 		if err != nil {
-			log.Error("Nats.OnChangeBoosterSignals", "signal casting error", err)
+			_log.Error("Nats.OnChangeBoosterSignals", "signal casting error", err)
 			return
 		}
 		go func() {
@@ -121,7 +121,8 @@ func OnChangeBoosterSignals(handler func(symbol *symbol.Symbol, funcName string,
 func TriggerClosedCandle(symbol *symbol.Symbol, candle *common.Candle) {
 	candleBytes, err := candle.MarshalMsg(nil)
 	if err != nil {
-		panic(err)
+		_log.Error("TriggerClosedCandle", "Candle.MarshalMsg", err)
+		return
 	}
 	msg := nats.Msg{
 		Subject: fmt.Sprintf("%s.ClosedCandle", symbol.ToString()),
@@ -130,7 +131,8 @@ func TriggerClosedCandle(symbol *symbol.Symbol, candle *common.Candle) {
 	}
 	err = Client.PublishMsg(&msg)
 	if err != nil {
-		panic(err)
+		_log.Error("TriggerClosedCandle", "PublishMsg", err)
+		return
 	}
 }
 
@@ -147,7 +149,7 @@ func TriggerChangedBoosterSignal(data *boosterModels.IndicatorResult) {
 	}
 	err := Client.PublishMsg(&msg)
 	if err != nil {
-		panic(err)
+		_log.Error("TriggerChangedBoosterSignal", "PublishMsg", err)
 	}
 }
 

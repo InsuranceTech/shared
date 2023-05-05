@@ -4,13 +4,11 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	"sync"
 	"sync/atomic"
 	"time"
 )
 
 var (
-	lock    sync.Locker
 	counter int64
 )
 
@@ -18,6 +16,14 @@ type TaggedLogger struct {
 	Tag string
 }
 
+/*
+	{
+		level: string,
+		timestamp: date-string | time-epoch,
+		message: string,
+		metaData: json,
+	}
+*/
 func write(mtype string, text string, tag string) {
 	t := time.Now()
 	if tag == "" {
