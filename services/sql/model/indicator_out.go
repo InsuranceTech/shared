@@ -4,7 +4,7 @@ type IndicatorOut struct {
 	tableName   struct{} `pg:"indicator_outs"`
 	ID          int32    `pg:"id,pk"`
 	FuncName    string   `pg:"func_name"`
-	IndicatorID int32    `pg:"indicator_id"`
+	IndicatorID int64    `pg:"indicator_id"`
 	Name        string   `pg:"name"`
 	Type        int32    `pg:"type"`
 	ControlType int32    `pg:"control_type"`
