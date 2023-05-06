@@ -53,6 +53,7 @@ func GetAllIndicators() ([]*model.Indicator, error) {
 	var indicators = make([]*model.Indicator, 0)
 
 	err := conn.Model(&indicators).
+		Relation("Outs").
 		Select()
 
 	if err != nil {
