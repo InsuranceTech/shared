@@ -15,21 +15,20 @@ type CandleSeries struct {
 	OnChangeSeries func(series *CandleSeries, candle *Candle, isAdded bool) `json:"-",msg:"-"`
 }
 
-// AddCandle Son mum tarihini kontrol eder, aynıysa günceller
-func (series *CandleSeries) AddCandle(candle *Candle) bool {
+// AddCandleE Son mum tarihini kontrol eder, aynıysa günceller
+func (series *CandleSeries) AddCandleE(candle *Candle) (bool, error) {
 	candleLen := len(series.Candles)
 
 	if candleLen > 0 && candle.Date.Unix() < series.Candles[len(series.Candles)-1].Date.Unix() {
 		// Hata
-		panic("Son mumdan daha eski tarihli bir mum eklenmeye çalıştı.")
-		return false
+		return false, errors.New("Son mumdan daha eski tarihli bir mum eklenmeye çalıştı.")
 	} else if candleLen > 0 && series.Candles[len(series.Candles)-1].Date.Unix() == candle.Date.Unix() {
 		// Güncelle
 		series.Candles[len(series.Candles)-1] = candle
 		if series.OnChangeSeries != nil {
 			series.OnChangeSeries(series, candle, false)
 		}
-		return false
+		return false, nil
 	} else {
 		if series.MaxCount > 0 && candleLen >= series.MaxCount {
 			// Kaydır
@@ -40,8 +39,14 @@ func (series *CandleSeries) AddCandle(candle *Candle) bool {
 		if series.OnChangeSeries != nil {
 			series.OnChangeSeries(series, candle, true)
 		}
-		return true
+		return true, nil
 	}
+}
+
+// AddCandle Son mum tarihini kontrol eder, aynıysa günceller
+func (series *CandleSeries) AddCandle(candle *Candle) bool {
+	s, _ := series.AddCandleE(candle)
+	return s
 }
 
 // AddCandles Son mum tarihini kontrol eder, aynıysa günceller
