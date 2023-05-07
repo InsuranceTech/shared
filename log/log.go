@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"sync/atomic"
 	"time"
 )
@@ -46,6 +47,14 @@ func CreateTag(tagName string) *TaggedLogger {
 	}
 }
 
+func joinSprints(a ...any) string {
+	sbs := make([]string, 0)
+	for _, s := range a {
+		sbs = append(sbs, fmt.Sprint(s))
+	}
+	return strings.Join(sbs, " | ")
+}
+
 // region Taglı kullanım
 func (l *TaggedLogger) InfoF(format string, a ...any) {
 	text := fmt.Sprintf(format, a...)
@@ -53,7 +62,7 @@ func (l *TaggedLogger) InfoF(format string, a ...any) {
 }
 
 func (l *TaggedLogger) Info(a ...any) {
-	text := fmt.Sprint(a...)
+	text := joinSprints(a...)
 	write("INFO", text, l.Tag)
 }
 
@@ -63,7 +72,7 @@ func (l *TaggedLogger) WarningF(format string, a ...any) {
 }
 
 func (l *TaggedLogger) Warning(a ...any) {
-	text := fmt.Sprint(a...)
+	text := joinSprints(a...)
 	write("WARNING", text, l.Tag)
 }
 
@@ -73,7 +82,7 @@ func (l *TaggedLogger) ErrorF(format string, a ...any) {
 }
 
 func (l *TaggedLogger) Error(a ...any) {
-	text := fmt.Sprint(a...)
+	text := joinSprints(a...)
 	write("ERROR", text, l.Tag)
 }
 
@@ -83,7 +92,7 @@ func (l *TaggedLogger) LogF(format string, a ...any) {
 }
 
 func (l *TaggedLogger) Log(a ...any) {
-	text := fmt.Sprint(a...)
+	text := joinSprints(a...)
 	write("LOG", text, l.Tag)
 }
 
@@ -94,7 +103,7 @@ func (l *TaggedLogger) FatalF(format string, a ...any) {
 }
 
 func (l *TaggedLogger) Fatal(a ...any) {
-	text := fmt.Sprint(a...)
+	text := joinSprints(a...)
 	write("FATAL", text, l.Tag)
 	os.Exit(1)
 }
@@ -108,7 +117,7 @@ func InfoF(format string, a ...any) {
 }
 
 func Info(a ...any) {
-	text := fmt.Sprint(a...)
+	text := joinSprints(a...)
 	write("INFO", text, "")
 }
 
@@ -118,7 +127,7 @@ func WarningF(format string, a ...any) {
 }
 
 func Warning(a ...any) {
-	text := fmt.Sprint(a...)
+	text := joinSprints(a...)
 	write("WARNING", text, "")
 }
 
@@ -128,7 +137,7 @@ func ErrorF(format string, a ...any) {
 }
 
 func Error(a ...any) {
-	text := fmt.Sprint(a...)
+	text := joinSprints(a...)
 	write("ERROR", text, "")
 }
 
@@ -138,7 +147,7 @@ func LogF(format string, a ...any) {
 }
 
 func Log(a ...any) {
-	text := fmt.Sprint(a...)
+	text := joinSprints(a...)
 	write("LOG", text, "")
 }
 
@@ -149,7 +158,7 @@ func FatalF(format string, a ...any) {
 }
 
 func Fatal(a ...any) {
-	text := fmt.Sprint(a...)
+	text := joinSprints(a...)
 	write("FATAL", text, "")
 	os.Exit(1)
 }
