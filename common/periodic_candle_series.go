@@ -1,6 +1,7 @@
 package common
 
 import (
+	"errors"
 	"github.com/InsuranceTech/shared/common/period"
 	"github.com/InsuranceTech/shared/common/symbol"
 )
@@ -28,12 +29,16 @@ func (p *PeriodicCandleSeries) Has(period period.Period) bool {
 }
 
 func (p *PeriodicCandleSeries) AddCandle(period period.Period, candle *Candle) bool {
+	s, _ := p.AddCandleE(period, candle)
+	return s
+}
+
+func (p *PeriodicCandleSeries) AddCandleE(period period.Period, candle *Candle) (bool, error) {
 	series := p.Get(period)
 	if series == nil {
-		return false
+		return false, errors.New("Series nil")
 	}
-	series.AddCandle(candle)
-	return true
+	return series.AddCandleE(candle)
 }
 
 func (p *PeriodicCandleSeries) InsertCandle(period period.Period, candle *Candle) bool {
