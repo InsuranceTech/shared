@@ -14,6 +14,4 @@ const (
 	ST_OHLCV5 = 8
 	ST_CUSTOM = 9
 	ST_OHLC4  = 10
-	//test for v1.1.3
-	ST__V13
 )

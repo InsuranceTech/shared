@@ -5,6 +5,7 @@ package model
 import (
 	"time"
 
+	"github.com/InsuranceTech/shared/common"
 	"github.com/InsuranceTech/shared/common/symbol"
 	"github.com/tinylib/msgp/msgp"
 )
@@ -22,7 +23,6 @@ func (z *IndicatorResult) DecodeMsg(dc *msgp.Reader) (err error) {
 	for zb0001 > 0 {
 		zb0001--
 		field, err = dc.ReadMapKeyPtr()
-
 		if err != nil {
 			err = msgp.WrapError(err)
 			return
@@ -101,21 +101,39 @@ func (z *IndicatorResult) DecodeMsg(dc *msgp.Reader) (err error) {
 				}
 				z.Values[za0001] = za0002
 			}
-		case "CandleTime":
+		case "LastCandle":
 			if dc.IsNil() {
 				err = dc.ReadNil()
 				if err != nil {
-					err = msgp.WrapError(err, "CandleTime")
+					err = msgp.WrapError(err, "LastCandle")
 					return
 				}
-				z.CandleTime = nil
+				z.LastCandle = nil
 			} else {
-				if z.CandleTime == nil {
-					z.CandleTime = new(time.Time)
+				if z.LastCandle == nil {
+					z.LastCandle = new(common.Candle)
 				}
-				*z.CandleTime, err = dc.ReadTime()
+				err = z.LastCandle.DecodeMsg(dc)
 				if err != nil {
-					err = msgp.WrapError(err, "CandleTime")
+					err = msgp.WrapError(err, "LastCandle")
+					return
+				}
+			}
+		case "PrevCandle":
+			if dc.IsNil() {
+				err = dc.ReadNil()
+				if err != nil {
+					err = msgp.WrapError(err, "PrevCandle")
+					return
+				}
+				z.PrevCandle = nil
+			} else {
+				if z.PrevCandle == nil {
+					z.PrevCandle = new(common.Candle)
+				}
+				err = z.PrevCandle.DecodeMsg(dc)
+				if err != nil {
+					err = msgp.WrapError(err, "PrevCandle")
 					return
 				}
 			}
@@ -156,9 +174,9 @@ func (z *IndicatorResult) DecodeMsg(dc *msgp.Reader) (err error) {
 
 // EncodeMsg implements msgp.Encodable
 func (z *IndicatorResult) EncodeMsg(en *msgp.Writer) (err error) {
-	// map header, size 7
+	// map header, size 8
 	// write "Symbol"
-	err = en.Append(0x87, 0xa6, 0x53, 0x79, 0x6d, 0x62, 0x6f, 0x6c)
+	err = en.Append(0x88, 0xa6, 0x53, 0x79, 0x6d, 0x62, 0x6f, 0x6c)
 	if err != nil {
 		return
 	}
@@ -223,20 +241,37 @@ func (z *IndicatorResult) EncodeMsg(en *msgp.Writer) (err error) {
 			}
 		}
 	}
-	// write "CandleTime"
-	err = en.Append(0xaa, 0x43, 0x61, 0x6e, 0x64, 0x6c, 0x65, 0x54, 0x69, 0x6d, 0x65)
+	// write "LastCandle"
+	err = en.Append(0xaa, 0x4c, 0x61, 0x73, 0x74, 0x43, 0x61, 0x6e, 0x64, 0x6c, 0x65)
 	if err != nil {
 		return
 	}
-	if z.CandleTime == nil {
+	if z.LastCandle == nil {
 		err = en.WriteNil()
 		if err != nil {
 			return
 		}
 	} else {
-		err = en.WriteTime(*z.CandleTime)
+		err = z.LastCandle.EncodeMsg(en)
 		if err != nil {
-			err = msgp.WrapError(err, "CandleTime")
+			err = msgp.WrapError(err, "LastCandle")
+			return
+		}
+	}
+	// write "PrevCandle"
+	err = en.Append(0xaa, 0x50, 0x72, 0x65, 0x76, 0x43, 0x61, 0x6e, 0x64, 0x6c, 0x65)
+	if err != nil {
+		return
+	}
+	if z.PrevCandle == nil {
+		err = en.WriteNil()
+		if err != nil {
+			return
+		}
+	} else {
+		err = z.PrevCandle.EncodeMsg(en)
+		if err != nil {
+			err = msgp.WrapError(err, "PrevCandle")
 			return
 		}
 	}
@@ -273,9 +308,9 @@ func (z *IndicatorResult) EncodeMsg(en *msgp.Writer) (err error) {
 // MarshalMsg implements msgp.Marshaler
 func (z *IndicatorResult) MarshalMsg(b []byte) (o []byte, err error) {
 	o = msgp.Require(b, z.Msgsize())
-	// map header, size 7
+	// map header, size 8
 	// string "Symbol"
-	o = append(o, 0x87, 0xa6, 0x53, 0x79, 0x6d, 0x62, 0x6f, 0x6c)
+	o = append(o, 0x88, 0xa6, 0x53, 0x79, 0x6d, 0x62, 0x6f, 0x6c)
 	if z.Symbol == nil {
 		o = msgp.AppendNil(o)
 	} else {
@@ -301,12 +336,27 @@ func (z *IndicatorResult) MarshalMsg(b []byte) (o []byte, err error) {
 			o = msgp.AppendFloat64(o, za0002[za0003])
 		}
 	}
-	// string "CandleTime"
-	o = append(o, 0xaa, 0x43, 0x61, 0x6e, 0x64, 0x6c, 0x65, 0x54, 0x69, 0x6d, 0x65)
-	if z.CandleTime == nil {
+	// string "LastCandle"
+	o = append(o, 0xaa, 0x4c, 0x61, 0x73, 0x74, 0x43, 0x61, 0x6e, 0x64, 0x6c, 0x65)
+	if z.LastCandle == nil {
 		o = msgp.AppendNil(o)
 	} else {
-		o = msgp.AppendTime(o, *z.CandleTime)
+		o, err = z.LastCandle.MarshalMsg(o)
+		if err != nil {
+			err = msgp.WrapError(err, "LastCandle")
+			return
+		}
+	}
+	// string "PrevCandle"
+	o = append(o, 0xaa, 0x50, 0x72, 0x65, 0x76, 0x43, 0x61, 0x6e, 0x64, 0x6c, 0x65)
+	if z.PrevCandle == nil {
+		o = msgp.AppendNil(o)
+	} else {
+		o, err = z.PrevCandle.MarshalMsg(o)
+		if err != nil {
+			err = msgp.WrapError(err, "PrevCandle")
+			return
+		}
 	}
 	// string "UpdateTime"
 	o = append(o, 0xaa, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x54, 0x69, 0x6d, 0x65)
@@ -411,20 +461,37 @@ func (z *IndicatorResult) UnmarshalMsg(bts []byte) (o []byte, err error) {
 				}
 				z.Values[za0001] = za0002
 			}
-		case "CandleTime":
+		case "LastCandle":
 			if msgp.IsNil(bts) {
 				bts, err = msgp.ReadNilBytes(bts)
 				if err != nil {
 					return
 				}
-				z.CandleTime = nil
+				z.LastCandle = nil
 			} else {
-				if z.CandleTime == nil {
-					z.CandleTime = new(time.Time)
+				if z.LastCandle == nil {
+					z.LastCandle = new(common.Candle)
 				}
-				*z.CandleTime, bts, err = msgp.ReadTimeBytes(bts)
+				bts, err = z.LastCandle.UnmarshalMsg(bts)
 				if err != nil {
-					err = msgp.WrapError(err, "CandleTime")
+					err = msgp.WrapError(err, "LastCandle")
+					return
+				}
+			}
+		case "PrevCandle":
+			if msgp.IsNil(bts) {
+				bts, err = msgp.ReadNilBytes(bts)
+				if err != nil {
+					return
+				}
+				z.PrevCandle = nil
+			} else {
+				if z.PrevCandle == nil {
+					z.PrevCandle = new(common.Candle)
+				}
+				bts, err = z.PrevCandle.UnmarshalMsg(bts)
+				if err != nil {
+					err = msgp.WrapError(err, "PrevCandle")
 					return
 				}
 			}
@@ -479,10 +546,16 @@ func (z *IndicatorResult) Msgsize() (s int) {
 		}
 	}
 	s += 11
-	if z.CandleTime == nil {
+	if z.LastCandle == nil {
 		s += msgp.NilSize
 	} else {
-		s += msgp.TimeSize
+		s += z.LastCandle.Msgsize()
+	}
+	s += 11
+	if z.PrevCandle == nil {
+		s += msgp.NilSize
+	} else {
+		s += z.PrevCandle.Msgsize()
 	}
 	s += 11
 	if z.UpdateTime == nil {
