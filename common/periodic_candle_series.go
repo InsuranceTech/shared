@@ -4,11 +4,13 @@ import (
 	"errors"
 	"github.com/InsuranceTech/shared/common/period"
 	"github.com/InsuranceTech/shared/common/symbol"
+	"sync"
 )
 
 type PeriodicCandleSeries struct {
 	Symbol        *symbol.Symbol
 	PeriodCandles map[period.Period]*CandleSeries // Test ortamında JSON çıktısı alabilmek için public
+	lock          sync.RWMutex                    // "concurrent map read and map write" hatası için (multi thread)
 }
 
 func CreatePeriodicCandleSeries(symbol symbol.Symbol) *PeriodicCandleSeries {
@@ -16,14 +18,19 @@ func CreatePeriodicCandleSeries(symbol symbol.Symbol) *PeriodicCandleSeries {
 	return &PeriodicCandleSeries{
 		Symbol:        &symbol,
 		PeriodCandles: make(map[period.Period]*CandleSeries, 0),
+		lock:          sync.RWMutex{},
 	}
 }
 
 func (p *PeriodicCandleSeries) Get(period period.Period) *CandleSeries {
+	p.lock.RLock()
+	defer p.lock.RUnlock()
 	return p.PeriodCandles[period]
 }
 
 func (p *PeriodicCandleSeries) Has(period period.Period) bool {
+	p.lock.RLock()
+	defer p.lock.RUnlock()
 	_, ok := p.PeriodCandles[period]
 	return ok
 }
@@ -54,6 +61,8 @@ func (p *PeriodicCandleSeries) CreatePeriodSource(period period.Period, source *
 	if p.Has(period) {
 		return false
 	}
+	p.lock.Lock()
+	defer p.lock.Unlock()
 	p.PeriodCandles[period] = source
 	return true
 }
@@ -65,10 +74,11 @@ func (p *PeriodicCandleSeries) CreatePeriod(period period.Period, limit int, can
 	if candles == nil {
 		candles = make([]*Candle, 0)
 	}
+	p.lock.Lock()
+	defer p.lock.Unlock()
 	p.PeriodCandles[period] = &CandleSeries{
 		MaxCount: limit,
 		Candles:  candles,
 	}
-
 	return true
 }
