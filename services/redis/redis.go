@@ -11,6 +11,7 @@ import (
 	"github.com/InsuranceTech/shared/config"
 	"github.com/InsuranceTech/shared/log"
 	"github.com/redis/go-redis/v9"
+	"time"
 )
 
 // Msgpack : https://github.com/smallnest/gosercomp/blob/master/benchmark.png
@@ -167,4 +168,79 @@ func GetIndicatorResult(symbol *symbol.Symbol, indicatorID int64) (*boosterModel
 		return nil, err
 	}
 	return data, nil
+}
+
+func SaveIndicatorResultCollection(collection *boosterModels.IndicatorResultCollection) error {
+	updateTime := time.Now().UTC()
+	key := "INDICATOR_RESULTS"
+	keyTime := "INDICATOR_RESULTS.TIME"
+	bytes, err := collection.MarshalMsg(nil)
+	if err != nil {
+		_log.Error("SaveIndicatorResultCollection.MarshalMsg", err)
+		return err
+	}
+	cmdStatus := Client.Set(context.Background(), key, bytes, 0)
+	if cmdStatus.Err() != nil {
+		_log.Error("SaveIndicatorResultCollection.Redis.Set", cmdStatus.Err())
+		return cmdStatus.Err()
+	}
+
+	cmdStatus = Client.Set(context.Background(), keyTime, updateTime.UnixMilli(), 0)
+	if cmdStatus.Err() != nil {
+		_log.Error("SaveIndicatorResultCollection.Redis.Set.Time", cmdStatus.Err())
+		return cmdStatus.Err()
+	}
+	return nil
+}
+
+func GetIndicatorResultCollection() (*boosterModels.IndicatorResultCollection, error) {
+	data := &boosterModels.IndicatorResultCollection{}
+	err := UpdateIndicatorResultCollectionModel(data)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
+func UpdateIndicatorResultCollectionModel(data *boosterModels.IndicatorResultCollection) error {
+	key := "INDICATOR_RESULTS"
+	cmdStatus := Client.Get(context.Background(), key)
+	if cmdStatus.Err() != nil {
+		return cmdStatus.Err()
+	}
+	bytes, err := cmdStatus.Bytes()
+	if err != nil {
+		return err
+	}
+	_, err = data.UnmarshalMsg(bytes)
+	if err != nil {
+		_log.Error("UpdateIndicatorResultCollectionModel.UnmarshalMsg", err)
+		return err
+	}
+	data.Indexes()
+	return nil
+}
+
+func GetIndicatorResultCollectionTime() (int64, error) {
+	key := "INDICATOR_RESULTS.TIME"
+	cmdStatus := Client.Get(context.Background(), key)
+	if cmdStatus.Err() != nil {
+		return 0, cmdStatus.Err()
+	}
+	unix, err := cmdStatus.Int64()
+	if err != nil {
+		return 0, err
+	}
+	return unix, nil
+}
+
+func UpdateIndicatorResultCollectionModelIfNeed(c *boosterModels.IndicatorResultCollection) (updated bool, err error) {
+	updateTime, err := GetIndicatorResultCollectionTime()
+	if err != nil {
+		return false, err
+	}
+	if c.LastTime != updateTime {
+		return true, UpdateIndicatorResultCollectionModel(c)
+	}
+	return false, nil
 }

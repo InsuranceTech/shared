@@ -10,11 +10,12 @@ type IndicatorResultCollection struct {
 	Results []*IndicatorResult
 	// Gelişmiş filtreleme için
 	// Period > FuncName > ExchangeType > Symbol[] indexleme
-	pfs map[period.Period]map[string]map[symbol.ExchangeType][]*IndicatorResult
+	pfs      map[period.Period]map[string]map[symbol.ExchangeType][]*IndicatorResult
+	LastTime int64
 }
 
-func Save() {
-
+func (c *IndicatorResultCollection) Append(result *IndicatorResult) {
+	c.Results = append(c.Results, result)
 }
 
 func (c *IndicatorResultCollection) Indexes() {
