@@ -1,3 +1,4 @@
+//msgp:tuple Period
 //go:generate msgp -o=Period_Msgpack.go -tests=false
 package period
 
