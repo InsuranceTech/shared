@@ -11,6 +11,7 @@ import (
 	"github.com/InsuranceTech/shared/config"
 	"github.com/InsuranceTech/shared/log"
 	"github.com/redis/go-redis/v9"
+	"sync"
 	"time"
 )
 
@@ -174,18 +175,24 @@ func SaveIndicatorResultCollection(collection *boosterModels.IndicatorResultColl
 	updateTime := time.Now().UTC()
 	key := "INDICATOR_RESULTS"
 	keyTime := "INDICATOR_RESULTS.TIME"
-	bytes, err := collection.MarshalMsg(nil)
-	if err != nil {
-		_log.Error("SaveIndicatorResultCollection.MarshalMsg", err)
-		return err
-	}
-	cmdStatus := Client.Set(context.Background(), key, bytes, 0)
-	if cmdStatus.Err() != nil {
-		_log.Error("SaveIndicatorResultCollection.Redis.Set", cmdStatus.Err())
-		return cmdStatus.Err()
-	}
 
-	cmdStatus = Client.Set(context.Background(), keyTime, updateTime.UnixMilli(), 0)
+	wait := sync.WaitGroup{}
+	for keyPeriod, _ := range collection.Results {
+		wait.Add(1)
+		go func(p period.Period) {
+			bytes := make([]byte, 0)
+			for _, result := range collection.GetIndicatorsP(p) {
+				bytes, _ = result.MarshalMsg(bytes)
+			}
+			cmdStatus := Client.Set(context.Background(), key+"_"+p.MinuteStr(), bytes, 0)
+			if cmdStatus.Err() != nil {
+				_log.Error("SaveIndicatorResultCollection.Redis.Set", cmdStatus.Err())
+			}
+			wait.Done()
+		}(keyPeriod)
+	}
+	wait.Wait()
+	cmdStatus := Client.Set(context.Background(), keyTime, updateTime.UnixMilli(), 0)
 	if cmdStatus.Err() != nil {
 		_log.Error("SaveIndicatorResultCollection.Redis.Set.Time", cmdStatus.Err())
 		return cmdStatus.Err()
@@ -194,7 +201,7 @@ func SaveIndicatorResultCollection(collection *boosterModels.IndicatorResultColl
 }
 
 func GetIndicatorResultCollection() (*boosterModels.IndicatorResultCollection, error) {
-	data := &boosterModels.IndicatorResultCollection{}
+	data := boosterModels.CreateIndicatorResultCollection()
 	err := UpdateIndicatorResultCollectionModel(data)
 	if err != nil {
 		return nil, err
@@ -204,19 +211,45 @@ func GetIndicatorResultCollection() (*boosterModels.IndicatorResultCollection, e
 
 func UpdateIndicatorResultCollectionModel(data *boosterModels.IndicatorResultCollection) error {
 	key := "INDICATOR_RESULTS"
-	cmdStatus := Client.Get(context.Background(), key)
-	if cmdStatus.Err() != nil {
-		return cmdStatus.Err()
+	wait := sync.WaitGroup{}
+
+	for _, keyPeriod := range period.AllPeriods {
+		wait.Add(1)
+		go func(p period.Period) {
+			cmdStatus := Client.Get(context.Background(), key+"_"+p.MinuteStr())
+			if cmdStatus.Err() != nil {
+				wait.Done()
+				return
+			}
+			bytes, err := cmdStatus.Bytes()
+			if err != nil {
+				wait.Done()
+				return
+			}
+
+			for len(bytes) > 0 {
+				r := &boosterModels.IndicatorResult{}
+				bytes, _ = r.UnmarshalMsg(bytes)
+				data.Append(r)
+			}
+			wait.Done()
+		}(keyPeriod)
 	}
-	bytes, err := cmdStatus.Bytes()
-	if err != nil {
-		return err
-	}
-	_, err = data.UnmarshalMsg(bytes)
-	if err != nil {
-		_log.Error("UpdateIndicatorResultCollectionModel.UnmarshalMsg", err)
-		return err
-	}
+
+	//cmdStatus := Client.Get(context.Background(), key)
+	//if cmdStatus.Err() != nil {
+	//	return cmdStatus.Err()
+	//}
+	//bytes, err := cmdStatus.Bytes()
+	//if err != nil {
+	//	return err
+	//}
+	//_, err = data.UnmarshalMsg(bytes)
+	//if err != nil {
+	//	_log.Error("UpdateIndicatorResultCollectionModel.UnmarshalMsg", err)
+	//	return err
+	//}
+	wait.Wait()
 	data.Indexes()
 	return nil
 }

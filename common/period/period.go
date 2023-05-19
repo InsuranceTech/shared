@@ -28,6 +28,8 @@ const (
 	D1         Period = 1440
 )
 
+var AllPeriods = []Period{M1, M3, M5, M10, M15, M20, M30, M45, H1, H2, H3, H4, H6, H8, H12, D1}
+
 // ToString : Binancedeki kullanım şekli : 1m, 5m, 1h, 1d /*
 func (p Period) ToString() string {
 	if p >= 1 && p <= 59 {

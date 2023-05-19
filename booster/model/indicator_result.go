@@ -23,7 +23,7 @@ type IndicatorResult struct {
 
 func (i *IndicatorResult) CheckCondition(condition *scanner.Condition) (bool, error) {
 	lastSourceValue, ok1 := GetLastSourceValue(condition, i)
-	lastTargetValue, ok2 := GetLastSourceValue(condition, i)
+	lastTargetValue, ok2 := GetLastTargetValue(condition, i)
 	if !ok1 {
 		return false, errors.New("cannot read Last Source Value")
 	}
@@ -41,9 +41,9 @@ func (i *IndicatorResult) CheckCondition(condition *scanner.Condition) (bool, er
 	case scanner.CO_GreaterOrEqual:
 		return lastSourceValue >= lastTargetValue, nil
 	case scanner.CO_Range:
-		return lastSourceValue >= lastTargetValue && lastSourceValue <= lastTargetValue, nil
+		return lastSourceValue >= condition.Value1 && lastSourceValue <= condition.Value2, nil
 	case scanner.CO_OutRange:
-		return !(lastSourceValue >= lastTargetValue && lastSourceValue <= lastTargetValue), nil
+		return !(lastSourceValue >= condition.Value1 && lastSourceValue <= condition.Value2), nil
 	case scanner.CO_Equal:
 		return equalFloat(lastSourceValue, lastTargetValue), nil
 	case scanner.CO_NotEqual:
@@ -122,6 +122,8 @@ func GetLastSourceValue(c *scanner.Condition, result *IndicatorResult) (float64,
 		if result.LastCandle != nil {
 			return result.LastCandle.GetSource(common.ST_CLOSE), true
 		}
+	case scanner.CO_FV_VALUE:
+		return c.Value1, true
 	default:
 		return result.GetLastValue(c.Source)
 	}
@@ -146,6 +148,8 @@ func GetLastTargetValue(c *scanner.Condition, result *IndicatorResult) (float64,
 		if result.LastCandle != nil {
 			return result.LastCandle.GetSource(common.ST_CLOSE), true
 		}
+	case scanner.CO_FV_VALUE:
+		return c.Value1, true
 	default:
 		return result.GetLastValue(c.Target)
 	}

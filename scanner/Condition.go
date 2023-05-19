@@ -21,6 +21,7 @@ const (
 	CO_FV_CANDLE_HIGH  = "{Candle.High}"
 	CO_FV_CANDLE_LOW   = "{Candle.Low}"
 	CO_FV_CANDLE_CLOSE = "{Candle.Close}"
+	CO_FV_VALUE        = "{Value}"
 )
 
 type Condition struct {

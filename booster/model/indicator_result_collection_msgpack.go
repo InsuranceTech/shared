@@ -24,36 +24,11 @@ func (z *IndicatorResultCollection) DecodeMsg(dc *msgp.Reader) (err error) {
 			return
 		}
 		switch msgp.UnsafeString(field) {
-		case "Results":
-			var zb0002 uint32
-			zb0002, err = dc.ReadArrayHeader()
+		case "LastTime":
+			z.LastTime, err = dc.ReadInt64()
 			if err != nil {
-				err = msgp.WrapError(err, "Results")
+				err = msgp.WrapError(err, "LastTime")
 				return
-			}
-			if cap(z.Results) >= int(zb0002) {
-				z.Results = (z.Results)[:zb0002]
-			} else {
-				z.Results = make([]*IndicatorResult, zb0002)
-			}
-			for za0001 := range z.Results {
-				if dc.IsNil() {
-					err = dc.ReadNil()
-					if err != nil {
-						err = msgp.WrapError(err, "Results", za0001)
-						return
-					}
-					z.Results[za0001] = nil
-				} else {
-					if z.Results[za0001] == nil {
-						z.Results[za0001] = new(IndicatorResult)
-					}
-					err = z.Results[za0001].DecodeMsg(dc)
-					if err != nil {
-						err = msgp.WrapError(err, "Results", za0001)
-						return
-					}
-				}
 			}
 		default:
 			err = dc.Skip()
@@ -67,53 +42,28 @@ func (z *IndicatorResultCollection) DecodeMsg(dc *msgp.Reader) (err error) {
 }
 
 // EncodeMsg implements msgp.Encodable
-func (z *IndicatorResultCollection) EncodeMsg(en *msgp.Writer) (err error) {
+func (z IndicatorResultCollection) EncodeMsg(en *msgp.Writer) (err error) {
 	// map header, size 1
-	// write "Results"
-	err = en.Append(0x81, 0xa7, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x73)
+	// write "LastTime"
+	err = en.Append(0x81, 0xa8, 0x4c, 0x61, 0x73, 0x74, 0x54, 0x69, 0x6d, 0x65)
 	if err != nil {
 		return
 	}
-	err = en.WriteArrayHeader(uint32(len(z.Results)))
+	err = en.WriteInt64(z.LastTime)
 	if err != nil {
-		err = msgp.WrapError(err, "Results")
+		err = msgp.WrapError(err, "LastTime")
 		return
-	}
-	for za0001 := range z.Results {
-		if z.Results[za0001] == nil {
-			err = en.WriteNil()
-			if err != nil {
-				return
-			}
-		} else {
-			err = z.Results[za0001].EncodeMsg(en)
-			if err != nil {
-				err = msgp.WrapError(err, "Results", za0001)
-				return
-			}
-		}
 	}
 	return
 }
 
 // MarshalMsg implements msgp.Marshaler
-func (z *IndicatorResultCollection) MarshalMsg(b []byte) (o []byte, err error) {
+func (z IndicatorResultCollection) MarshalMsg(b []byte) (o []byte, err error) {
 	o = msgp.Require(b, z.Msgsize())
 	// map header, size 1
-	// string "Results"
-	o = append(o, 0x81, 0xa7, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x73)
-	o = msgp.AppendArrayHeader(o, uint32(len(z.Results)))
-	for za0001 := range z.Results {
-		if z.Results[za0001] == nil {
-			o = msgp.AppendNil(o)
-		} else {
-			o, err = z.Results[za0001].MarshalMsg(o)
-			if err != nil {
-				err = msgp.WrapError(err, "Results", za0001)
-				return
-			}
-		}
-	}
+	// string "LastTime"
+	o = append(o, 0x81, 0xa8, 0x4c, 0x61, 0x73, 0x74, 0x54, 0x69, 0x6d, 0x65)
+	o = msgp.AppendInt64(o, z.LastTime)
 	return
 }
 
@@ -135,35 +85,11 @@ func (z *IndicatorResultCollection) UnmarshalMsg(bts []byte) (o []byte, err erro
 			return
 		}
 		switch msgp.UnsafeString(field) {
-		case "Results":
-			var zb0002 uint32
-			zb0002, bts, err = msgp.ReadArrayHeaderBytes(bts)
+		case "LastTime":
+			z.LastTime, bts, err = msgp.ReadInt64Bytes(bts)
 			if err != nil {
-				err = msgp.WrapError(err, "Results")
+				err = msgp.WrapError(err, "LastTime")
 				return
-			}
-			if cap(z.Results) >= int(zb0002) {
-				z.Results = (z.Results)[:zb0002]
-			} else {
-				z.Results = make([]*IndicatorResult, zb0002)
-			}
-			for za0001 := range z.Results {
-				if msgp.IsNil(bts) {
-					bts, err = msgp.ReadNilBytes(bts)
-					if err != nil {
-						return
-					}
-					z.Results[za0001] = nil
-				} else {
-					if z.Results[za0001] == nil {
-						z.Results[za0001] = new(IndicatorResult)
-					}
-					bts, err = z.Results[za0001].UnmarshalMsg(bts)
-					if err != nil {
-						err = msgp.WrapError(err, "Results", za0001)
-						return
-					}
-				}
 			}
 		default:
 			bts, err = msgp.Skip(bts)
@@ -178,14 +104,7 @@ func (z *IndicatorResultCollection) UnmarshalMsg(bts []byte) (o []byte, err erro
 }
 
 // Msgsize returns an upper bound estimate of the number of bytes occupied by the serialized message
-func (z *IndicatorResultCollection) Msgsize() (s int) {
-	s = 1 + 8 + msgp.ArrayHeaderSize
-	for za0001 := range z.Results {
-		if z.Results[za0001] == nil {
-			s += msgp.NilSize
-		} else {
-			s += z.Results[za0001].Msgsize()
-		}
-	}
+func (z IndicatorResultCollection) Msgsize() (s int) {
+	s = 1 + 9 + msgp.Int64Size
 	return
 }
