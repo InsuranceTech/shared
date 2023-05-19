@@ -1,3 +1,4 @@
+//msgp:tuple IndicatorResult
 //go:generate msgp -o=indicator_result_msgpack.go -tests=false
 package model
 

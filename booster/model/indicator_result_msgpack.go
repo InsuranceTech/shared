@@ -12,171 +12,148 @@ import (
 
 // DecodeMsg implements msgp.Decodable
 func (z *IndicatorResult) DecodeMsg(dc *msgp.Reader) (err error) {
-	var field []byte
-	_ = field
 	var zb0001 uint32
-	zb0001, err = dc.ReadMapHeader()
+	zb0001, err = dc.ReadArrayHeader()
 	if err != nil {
 		err = msgp.WrapError(err)
 		return
 	}
-	for zb0001 > 0 {
-		zb0001--
-		field, err = dc.ReadMapKeyPtr()
+	if zb0001 != 8 {
+		err = msgp.ArrayError{Wanted: 8, Got: zb0001}
+		return
+	}
+	if dc.IsNil() {
+		err = dc.ReadNil()
 		if err != nil {
-			err = msgp.WrapError(err)
+			err = msgp.WrapError(err, "Symbol")
 			return
 		}
-		switch msgp.UnsafeString(field) {
-		case "Symbol":
-			if dc.IsNil() {
-				err = dc.ReadNil()
-				if err != nil {
-					err = msgp.WrapError(err, "Symbol")
-					return
-				}
-				z.Symbol = nil
-			} else {
-				if z.Symbol == nil {
-					z.Symbol = new(symbol.Symbol)
-				}
-				err = z.Symbol.DecodeMsg(dc)
-				if err != nil {
-					err = msgp.WrapError(err, "Symbol")
-					return
-				}
-			}
-		case "IndicatorID":
-			z.IndicatorID, err = dc.ReadInt64()
+		z.Symbol = nil
+	} else {
+		if z.Symbol == nil {
+			z.Symbol = new(symbol.Symbol)
+		}
+		err = z.Symbol.DecodeMsg(dc)
+		if err != nil {
+			err = msgp.WrapError(err, "Symbol")
+			return
+		}
+	}
+	z.IndicatorID, err = dc.ReadInt64()
+	if err != nil {
+		err = msgp.WrapError(err, "IndicatorID")
+		return
+	}
+	z.FuncName, err = dc.ReadString()
+	if err != nil {
+		err = msgp.WrapError(err, "FuncName")
+		return
+	}
+	var zb0002 uint32
+	zb0002, err = dc.ReadMapHeader()
+	if err != nil {
+		err = msgp.WrapError(err, "Values")
+		return
+	}
+	if z.Values == nil {
+		z.Values = make(map[string][]float64, zb0002)
+	} else if len(z.Values) > 0 {
+		for key := range z.Values {
+			delete(z.Values, key)
+		}
+	}
+	for zb0002 > 0 {
+		zb0002--
+		var za0001 string
+		var za0002 []float64
+		za0001, err = dc.ReadString()
+		if err != nil {
+			err = msgp.WrapError(err, "Values")
+			return
+		}
+		var zb0003 uint32
+		zb0003, err = dc.ReadArrayHeader()
+		if err != nil {
+			err = msgp.WrapError(err, "Values", za0001)
+			return
+		}
+		if cap(za0002) >= int(zb0003) {
+			za0002 = (za0002)[:zb0003]
+		} else {
+			za0002 = make([]float64, zb0003)
+		}
+		for za0003 := range za0002 {
+			za0002[za0003], err = dc.ReadFloat64()
 			if err != nil {
-				err = msgp.WrapError(err, "IndicatorID")
-				return
-			}
-		case "FuncName":
-			z.FuncName, err = dc.ReadString()
-			if err != nil {
-				err = msgp.WrapError(err, "FuncName")
-				return
-			}
-		case "Values":
-			var zb0002 uint32
-			zb0002, err = dc.ReadMapHeader()
-			if err != nil {
-				err = msgp.WrapError(err, "Values")
-				return
-			}
-			if z.Values == nil {
-				z.Values = make(map[string][]float64, zb0002)
-			} else if len(z.Values) > 0 {
-				for key := range z.Values {
-					delete(z.Values, key)
-				}
-			}
-			for zb0002 > 0 {
-				zb0002--
-				var za0001 string
-				var za0002 []float64
-				za0001, err = dc.ReadString()
-				if err != nil {
-					err = msgp.WrapError(err, "Values")
-					return
-				}
-				var zb0003 uint32
-				zb0003, err = dc.ReadArrayHeader()
-				if err != nil {
-					err = msgp.WrapError(err, "Values", za0001)
-					return
-				}
-				if cap(za0002) >= int(zb0003) {
-					za0002 = (za0002)[:zb0003]
-				} else {
-					za0002 = make([]float64, zb0003)
-				}
-				for za0003 := range za0002 {
-					za0002[za0003], err = dc.ReadFloat64()
-					if err != nil {
-						err = msgp.WrapError(err, "Values", za0001, za0003)
-						return
-					}
-				}
-				z.Values[za0001] = za0002
-			}
-		case "LastCandle":
-			if dc.IsNil() {
-				err = dc.ReadNil()
-				if err != nil {
-					err = msgp.WrapError(err, "LastCandle")
-					return
-				}
-				z.LastCandle = nil
-			} else {
-				if z.LastCandle == nil {
-					z.LastCandle = new(common.Candle)
-				}
-				err = z.LastCandle.DecodeMsg(dc)
-				if err != nil {
-					err = msgp.WrapError(err, "LastCandle")
-					return
-				}
-			}
-		case "PrevCandle":
-			if dc.IsNil() {
-				err = dc.ReadNil()
-				if err != nil {
-					err = msgp.WrapError(err, "PrevCandle")
-					return
-				}
-				z.PrevCandle = nil
-			} else {
-				if z.PrevCandle == nil {
-					z.PrevCandle = new(common.Candle)
-				}
-				err = z.PrevCandle.DecodeMsg(dc)
-				if err != nil {
-					err = msgp.WrapError(err, "PrevCandle")
-					return
-				}
-			}
-		case "UpdateTime":
-			if dc.IsNil() {
-				err = dc.ReadNil()
-				if err != nil {
-					err = msgp.WrapError(err, "UpdateTime")
-					return
-				}
-				z.UpdateTime = nil
-			} else {
-				if z.UpdateTime == nil {
-					z.UpdateTime = new(time.Time)
-				}
-				*z.UpdateTime, err = dc.ReadTime()
-				if err != nil {
-					err = msgp.WrapError(err, "UpdateTime")
-					return
-				}
-			}
-		case "Signal":
-			z.Signal, err = dc.ReadInt16()
-			if err != nil {
-				err = msgp.WrapError(err, "Signal")
-				return
-			}
-		default:
-			err = dc.Skip()
-			if err != nil {
-				err = msgp.WrapError(err)
+				err = msgp.WrapError(err, "Values", za0001, za0003)
 				return
 			}
 		}
+		z.Values[za0001] = za0002
+	}
+	if dc.IsNil() {
+		err = dc.ReadNil()
+		if err != nil {
+			err = msgp.WrapError(err, "LastCandle")
+			return
+		}
+		z.LastCandle = nil
+	} else {
+		if z.LastCandle == nil {
+			z.LastCandle = new(common.Candle)
+		}
+		err = z.LastCandle.DecodeMsg(dc)
+		if err != nil {
+			err = msgp.WrapError(err, "LastCandle")
+			return
+		}
+	}
+	if dc.IsNil() {
+		err = dc.ReadNil()
+		if err != nil {
+			err = msgp.WrapError(err, "PrevCandle")
+			return
+		}
+		z.PrevCandle = nil
+	} else {
+		if z.PrevCandle == nil {
+			z.PrevCandle = new(common.Candle)
+		}
+		err = z.PrevCandle.DecodeMsg(dc)
+		if err != nil {
+			err = msgp.WrapError(err, "PrevCandle")
+			return
+		}
+	}
+	if dc.IsNil() {
+		err = dc.ReadNil()
+		if err != nil {
+			err = msgp.WrapError(err, "UpdateTime")
+			return
+		}
+		z.UpdateTime = nil
+	} else {
+		if z.UpdateTime == nil {
+			z.UpdateTime = new(time.Time)
+		}
+		*z.UpdateTime, err = dc.ReadTime()
+		if err != nil {
+			err = msgp.WrapError(err, "UpdateTime")
+			return
+		}
+	}
+	z.Signal, err = dc.ReadInt16()
+	if err != nil {
+		err = msgp.WrapError(err, "Signal")
+		return
 	}
 	return
 }
 
 // EncodeMsg implements msgp.Encodable
 func (z *IndicatorResult) EncodeMsg(en *msgp.Writer) (err error) {
-	// map header, size 8
-	// write "Symbol"
-	err = en.Append(0x88, 0xa6, 0x53, 0x79, 0x6d, 0x62, 0x6f, 0x6c)
+	// array header, size 8
+	err = en.Append(0x98)
 	if err != nil {
 		return
 	}
@@ -192,29 +169,14 @@ func (z *IndicatorResult) EncodeMsg(en *msgp.Writer) (err error) {
 			return
 		}
 	}
-	// write "IndicatorID"
-	err = en.Append(0xab, 0x49, 0x6e, 0x64, 0x69, 0x63, 0x61, 0x74, 0x6f, 0x72, 0x49, 0x44)
-	if err != nil {
-		return
-	}
 	err = en.WriteInt64(z.IndicatorID)
 	if err != nil {
 		err = msgp.WrapError(err, "IndicatorID")
 		return
 	}
-	// write "FuncName"
-	err = en.Append(0xa8, 0x46, 0x75, 0x6e, 0x63, 0x4e, 0x61, 0x6d, 0x65)
-	if err != nil {
-		return
-	}
 	err = en.WriteString(z.FuncName)
 	if err != nil {
 		err = msgp.WrapError(err, "FuncName")
-		return
-	}
-	// write "Values"
-	err = en.Append(0xa6, 0x56, 0x61, 0x6c, 0x75, 0x65, 0x73)
-	if err != nil {
 		return
 	}
 	err = en.WriteMapHeader(uint32(len(z.Values)))
@@ -241,11 +203,6 @@ func (z *IndicatorResult) EncodeMsg(en *msgp.Writer) (err error) {
 			}
 		}
 	}
-	// write "LastCandle"
-	err = en.Append(0xaa, 0x4c, 0x61, 0x73, 0x74, 0x43, 0x61, 0x6e, 0x64, 0x6c, 0x65)
-	if err != nil {
-		return
-	}
 	if z.LastCandle == nil {
 		err = en.WriteNil()
 		if err != nil {
@@ -257,11 +214,6 @@ func (z *IndicatorResult) EncodeMsg(en *msgp.Writer) (err error) {
 			err = msgp.WrapError(err, "LastCandle")
 			return
 		}
-	}
-	// write "PrevCandle"
-	err = en.Append(0xaa, 0x50, 0x72, 0x65, 0x76, 0x43, 0x61, 0x6e, 0x64, 0x6c, 0x65)
-	if err != nil {
-		return
 	}
 	if z.PrevCandle == nil {
 		err = en.WriteNil()
@@ -275,11 +227,6 @@ func (z *IndicatorResult) EncodeMsg(en *msgp.Writer) (err error) {
 			return
 		}
 	}
-	// write "UpdateTime"
-	err = en.Append(0xaa, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x54, 0x69, 0x6d, 0x65)
-	if err != nil {
-		return
-	}
 	if z.UpdateTime == nil {
 		err = en.WriteNil()
 		if err != nil {
@@ -292,11 +239,6 @@ func (z *IndicatorResult) EncodeMsg(en *msgp.Writer) (err error) {
 			return
 		}
 	}
-	// write "Signal"
-	err = en.Append(0xa6, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c)
-	if err != nil {
-		return
-	}
 	err = en.WriteInt16(z.Signal)
 	if err != nil {
 		err = msgp.WrapError(err, "Signal")
@@ -308,9 +250,8 @@ func (z *IndicatorResult) EncodeMsg(en *msgp.Writer) (err error) {
 // MarshalMsg implements msgp.Marshaler
 func (z *IndicatorResult) MarshalMsg(b []byte) (o []byte, err error) {
 	o = msgp.Require(b, z.Msgsize())
-	// map header, size 8
-	// string "Symbol"
-	o = append(o, 0x88, 0xa6, 0x53, 0x79, 0x6d, 0x62, 0x6f, 0x6c)
+	// array header, size 8
+	o = append(o, 0x98)
 	if z.Symbol == nil {
 		o = msgp.AppendNil(o)
 	} else {
@@ -320,14 +261,8 @@ func (z *IndicatorResult) MarshalMsg(b []byte) (o []byte, err error) {
 			return
 		}
 	}
-	// string "IndicatorID"
-	o = append(o, 0xab, 0x49, 0x6e, 0x64, 0x69, 0x63, 0x61, 0x74, 0x6f, 0x72, 0x49, 0x44)
 	o = msgp.AppendInt64(o, z.IndicatorID)
-	// string "FuncName"
-	o = append(o, 0xa8, 0x46, 0x75, 0x6e, 0x63, 0x4e, 0x61, 0x6d, 0x65)
 	o = msgp.AppendString(o, z.FuncName)
-	// string "Values"
-	o = append(o, 0xa6, 0x56, 0x61, 0x6c, 0x75, 0x65, 0x73)
 	o = msgp.AppendMapHeader(o, uint32(len(z.Values)))
 	for za0001, za0002 := range z.Values {
 		o = msgp.AppendString(o, za0001)
@@ -336,8 +271,6 @@ func (z *IndicatorResult) MarshalMsg(b []byte) (o []byte, err error) {
 			o = msgp.AppendFloat64(o, za0002[za0003])
 		}
 	}
-	// string "LastCandle"
-	o = append(o, 0xaa, 0x4c, 0x61, 0x73, 0x74, 0x43, 0x61, 0x6e, 0x64, 0x6c, 0x65)
 	if z.LastCandle == nil {
 		o = msgp.AppendNil(o)
 	} else {
@@ -347,8 +280,6 @@ func (z *IndicatorResult) MarshalMsg(b []byte) (o []byte, err error) {
 			return
 		}
 	}
-	// string "PrevCandle"
-	o = append(o, 0xaa, 0x50, 0x72, 0x65, 0x76, 0x43, 0x61, 0x6e, 0x64, 0x6c, 0x65)
 	if z.PrevCandle == nil {
 		o = msgp.AppendNil(o)
 	} else {
@@ -358,173 +289,147 @@ func (z *IndicatorResult) MarshalMsg(b []byte) (o []byte, err error) {
 			return
 		}
 	}
-	// string "UpdateTime"
-	o = append(o, 0xaa, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x54, 0x69, 0x6d, 0x65)
 	if z.UpdateTime == nil {
 		o = msgp.AppendNil(o)
 	} else {
 		o = msgp.AppendTime(o, *z.UpdateTime)
 	}
-	// string "Signal"
-	o = append(o, 0xa6, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c)
 	o = msgp.AppendInt16(o, z.Signal)
 	return
 }
 
 // UnmarshalMsg implements msgp.Unmarshaler
 func (z *IndicatorResult) UnmarshalMsg(bts []byte) (o []byte, err error) {
-	var field []byte
-	_ = field
 	var zb0001 uint32
-	zb0001, bts, err = msgp.ReadMapHeaderBytes(bts)
+	zb0001, bts, err = msgp.ReadArrayHeaderBytes(bts)
 	if err != nil {
 		err = msgp.WrapError(err)
 		return
 	}
-	for zb0001 > 0 {
-		zb0001--
-		field, bts, err = msgp.ReadMapKeyZC(bts)
+	if zb0001 != 8 {
+		err = msgp.ArrayError{Wanted: 8, Got: zb0001}
+		return
+	}
+	if msgp.IsNil(bts) {
+		bts, err = msgp.ReadNilBytes(bts)
 		if err != nil {
-			err = msgp.WrapError(err)
 			return
 		}
-		switch msgp.UnsafeString(field) {
-		case "Symbol":
-			if msgp.IsNil(bts) {
-				bts, err = msgp.ReadNilBytes(bts)
-				if err != nil {
-					return
-				}
-				z.Symbol = nil
-			} else {
-				if z.Symbol == nil {
-					z.Symbol = new(symbol.Symbol)
-				}
-				bts, err = z.Symbol.UnmarshalMsg(bts)
-				if err != nil {
-					err = msgp.WrapError(err, "Symbol")
-					return
-				}
-			}
-		case "IndicatorID":
-			z.IndicatorID, bts, err = msgp.ReadInt64Bytes(bts)
+		z.Symbol = nil
+	} else {
+		if z.Symbol == nil {
+			z.Symbol = new(symbol.Symbol)
+		}
+		bts, err = z.Symbol.UnmarshalMsg(bts)
+		if err != nil {
+			err = msgp.WrapError(err, "Symbol")
+			return
+		}
+	}
+	z.IndicatorID, bts, err = msgp.ReadInt64Bytes(bts)
+	if err != nil {
+		err = msgp.WrapError(err, "IndicatorID")
+		return
+	}
+	z.FuncName, bts, err = msgp.ReadStringBytes(bts)
+	if err != nil {
+		err = msgp.WrapError(err, "FuncName")
+		return
+	}
+	var zb0002 uint32
+	zb0002, bts, err = msgp.ReadMapHeaderBytes(bts)
+	if err != nil {
+		err = msgp.WrapError(err, "Values")
+		return
+	}
+	if z.Values == nil {
+		z.Values = make(map[string][]float64, zb0002)
+	} else if len(z.Values) > 0 {
+		for key := range z.Values {
+			delete(z.Values, key)
+		}
+	}
+	for zb0002 > 0 {
+		var za0001 string
+		var za0002 []float64
+		zb0002--
+		za0001, bts, err = msgp.ReadStringBytes(bts)
+		if err != nil {
+			err = msgp.WrapError(err, "Values")
+			return
+		}
+		var zb0003 uint32
+		zb0003, bts, err = msgp.ReadArrayHeaderBytes(bts)
+		if err != nil {
+			err = msgp.WrapError(err, "Values", za0001)
+			return
+		}
+		if cap(za0002) >= int(zb0003) {
+			za0002 = (za0002)[:zb0003]
+		} else {
+			za0002 = make([]float64, zb0003)
+		}
+		for za0003 := range za0002 {
+			za0002[za0003], bts, err = msgp.ReadFloat64Bytes(bts)
 			if err != nil {
-				err = msgp.WrapError(err, "IndicatorID")
-				return
-			}
-		case "FuncName":
-			z.FuncName, bts, err = msgp.ReadStringBytes(bts)
-			if err != nil {
-				err = msgp.WrapError(err, "FuncName")
-				return
-			}
-		case "Values":
-			var zb0002 uint32
-			zb0002, bts, err = msgp.ReadMapHeaderBytes(bts)
-			if err != nil {
-				err = msgp.WrapError(err, "Values")
-				return
-			}
-			if z.Values == nil {
-				z.Values = make(map[string][]float64, zb0002)
-			} else if len(z.Values) > 0 {
-				for key := range z.Values {
-					delete(z.Values, key)
-				}
-			}
-			for zb0002 > 0 {
-				var za0001 string
-				var za0002 []float64
-				zb0002--
-				za0001, bts, err = msgp.ReadStringBytes(bts)
-				if err != nil {
-					err = msgp.WrapError(err, "Values")
-					return
-				}
-				var zb0003 uint32
-				zb0003, bts, err = msgp.ReadArrayHeaderBytes(bts)
-				if err != nil {
-					err = msgp.WrapError(err, "Values", za0001)
-					return
-				}
-				if cap(za0002) >= int(zb0003) {
-					za0002 = (za0002)[:zb0003]
-				} else {
-					za0002 = make([]float64, zb0003)
-				}
-				for za0003 := range za0002 {
-					za0002[za0003], bts, err = msgp.ReadFloat64Bytes(bts)
-					if err != nil {
-						err = msgp.WrapError(err, "Values", za0001, za0003)
-						return
-					}
-				}
-				z.Values[za0001] = za0002
-			}
-		case "LastCandle":
-			if msgp.IsNil(bts) {
-				bts, err = msgp.ReadNilBytes(bts)
-				if err != nil {
-					return
-				}
-				z.LastCandle = nil
-			} else {
-				if z.LastCandle == nil {
-					z.LastCandle = new(common.Candle)
-				}
-				bts, err = z.LastCandle.UnmarshalMsg(bts)
-				if err != nil {
-					err = msgp.WrapError(err, "LastCandle")
-					return
-				}
-			}
-		case "PrevCandle":
-			if msgp.IsNil(bts) {
-				bts, err = msgp.ReadNilBytes(bts)
-				if err != nil {
-					return
-				}
-				z.PrevCandle = nil
-			} else {
-				if z.PrevCandle == nil {
-					z.PrevCandle = new(common.Candle)
-				}
-				bts, err = z.PrevCandle.UnmarshalMsg(bts)
-				if err != nil {
-					err = msgp.WrapError(err, "PrevCandle")
-					return
-				}
-			}
-		case "UpdateTime":
-			if msgp.IsNil(bts) {
-				bts, err = msgp.ReadNilBytes(bts)
-				if err != nil {
-					return
-				}
-				z.UpdateTime = nil
-			} else {
-				if z.UpdateTime == nil {
-					z.UpdateTime = new(time.Time)
-				}
-				*z.UpdateTime, bts, err = msgp.ReadTimeBytes(bts)
-				if err != nil {
-					err = msgp.WrapError(err, "UpdateTime")
-					return
-				}
-			}
-		case "Signal":
-			z.Signal, bts, err = msgp.ReadInt16Bytes(bts)
-			if err != nil {
-				err = msgp.WrapError(err, "Signal")
-				return
-			}
-		default:
-			bts, err = msgp.Skip(bts)
-			if err != nil {
-				err = msgp.WrapError(err)
+				err = msgp.WrapError(err, "Values", za0001, za0003)
 				return
 			}
 		}
+		z.Values[za0001] = za0002
+	}
+	if msgp.IsNil(bts) {
+		bts, err = msgp.ReadNilBytes(bts)
+		if err != nil {
+			return
+		}
+		z.LastCandle = nil
+	} else {
+		if z.LastCandle == nil {
+			z.LastCandle = new(common.Candle)
+		}
+		bts, err = z.LastCandle.UnmarshalMsg(bts)
+		if err != nil {
+			err = msgp.WrapError(err, "LastCandle")
+			return
+		}
+	}
+	if msgp.IsNil(bts) {
+		bts, err = msgp.ReadNilBytes(bts)
+		if err != nil {
+			return
+		}
+		z.PrevCandle = nil
+	} else {
+		if z.PrevCandle == nil {
+			z.PrevCandle = new(common.Candle)
+		}
+		bts, err = z.PrevCandle.UnmarshalMsg(bts)
+		if err != nil {
+			err = msgp.WrapError(err, "PrevCandle")
+			return
+		}
+	}
+	if msgp.IsNil(bts) {
+		bts, err = msgp.ReadNilBytes(bts)
+		if err != nil {
+			return
+		}
+		z.UpdateTime = nil
+	} else {
+		if z.UpdateTime == nil {
+			z.UpdateTime = new(time.Time)
+		}
+		*z.UpdateTime, bts, err = msgp.ReadTimeBytes(bts)
+		if err != nil {
+			err = msgp.WrapError(err, "UpdateTime")
+			return
+		}
+	}
+	z.Signal, bts, err = msgp.ReadInt16Bytes(bts)
+	if err != nil {
+		err = msgp.WrapError(err, "Signal")
+		return
 	}
 	o = bts
 	return
@@ -532,37 +437,34 @@ func (z *IndicatorResult) UnmarshalMsg(bts []byte) (o []byte, err error) {
 
 // Msgsize returns an upper bound estimate of the number of bytes occupied by the serialized message
 func (z *IndicatorResult) Msgsize() (s int) {
-	s = 1 + 7
+	s = 1
 	if z.Symbol == nil {
 		s += msgp.NilSize
 	} else {
 		s += z.Symbol.Msgsize()
 	}
-	s += 12 + msgp.Int64Size + 9 + msgp.StringPrefixSize + len(z.FuncName) + 7 + msgp.MapHeaderSize
+	s += msgp.Int64Size + msgp.StringPrefixSize + len(z.FuncName) + msgp.MapHeaderSize
 	if z.Values != nil {
 		for za0001, za0002 := range z.Values {
 			_ = za0002
 			s += msgp.StringPrefixSize + len(za0001) + msgp.ArrayHeaderSize + (len(za0002) * (msgp.Float64Size))
 		}
 	}
-	s += 11
 	if z.LastCandle == nil {
 		s += msgp.NilSize
 	} else {
 		s += z.LastCandle.Msgsize()
 	}
-	s += 11
 	if z.PrevCandle == nil {
 		s += msgp.NilSize
 	} else {
 		s += z.PrevCandle.Msgsize()
 	}
-	s += 11
 	if z.UpdateTime == nil {
 		s += msgp.NilSize
 	} else {
 		s += msgp.TimeSize
 	}
-	s += 7 + msgp.Int16Size
+	s += msgp.Int16Size
 	return
 }
