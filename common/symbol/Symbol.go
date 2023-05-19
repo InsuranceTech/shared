@@ -1,3 +1,4 @@
+//msgp:tuple Symbol
 //go:generate msgp -o=Symbol_Msgpack.go -tests=false
 package symbol
 

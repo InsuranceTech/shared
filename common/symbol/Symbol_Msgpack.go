@@ -60,60 +60,42 @@ func (z ExchangeType) Msgsize() (s int) {
 
 // DecodeMsg implements msgp.Decodable
 func (z *Symbol) DecodeMsg(dc *msgp.Reader) (err error) {
-	var field []byte
-	_ = field
 	var zb0001 uint32
-	zb0001, err = dc.ReadMapHeader()
+	zb0001, err = dc.ReadArrayHeader()
 	if err != nil {
 		err = msgp.WrapError(err)
 		return
 	}
-	for zb0001 > 0 {
-		zb0001--
-		field, err = dc.ReadMapKeyPtr()
+	if zb0001 != 3 {
+		err = msgp.ArrayError{Wanted: 3, Got: zb0001}
+		return
+	}
+	z.SymbolName, err = dc.ReadString()
+	if err != nil {
+		err = msgp.WrapError(err, "SymbolName")
+		return
+	}
+	{
+		var zb0002 int
+		zb0002, err = dc.ReadInt()
 		if err != nil {
-			err = msgp.WrapError(err)
+			err = msgp.WrapError(err, "Exchange")
 			return
 		}
-		switch msgp.UnsafeString(field) {
-		case "SymbolName":
-			z.SymbolName, err = dc.ReadString()
-			if err != nil {
-				err = msgp.WrapError(err, "SymbolName")
-				return
-			}
-		case "Exchange":
-			{
-				var zb0002 int
-				zb0002, err = dc.ReadInt()
-				if err != nil {
-					err = msgp.WrapError(err, "Exchange")
-					return
-				}
-				z.Exchange = ExchangeType(zb0002)
-			}
-		case "Period":
-			err = z.Period.DecodeMsg(dc)
-			if err != nil {
-				err = msgp.WrapError(err, "Period")
-				return
-			}
-		default:
-			err = dc.Skip()
-			if err != nil {
-				err = msgp.WrapError(err)
-				return
-			}
-		}
+		z.Exchange = ExchangeType(zb0002)
+	}
+	err = z.Period.DecodeMsg(dc)
+	if err != nil {
+		err = msgp.WrapError(err, "Period")
+		return
 	}
 	return
 }
 
 // EncodeMsg implements msgp.Encodable
 func (z *Symbol) EncodeMsg(en *msgp.Writer) (err error) {
-	// map header, size 3
-	// write "SymbolName"
-	err = en.Append(0x83, 0xaa, 0x53, 0x79, 0x6d, 0x62, 0x6f, 0x6c, 0x4e, 0x61, 0x6d, 0x65)
+	// array header, size 3
+	err = en.Append(0x93)
 	if err != nil {
 		return
 	}
@@ -122,19 +104,9 @@ func (z *Symbol) EncodeMsg(en *msgp.Writer) (err error) {
 		err = msgp.WrapError(err, "SymbolName")
 		return
 	}
-	// write "Exchange"
-	err = en.Append(0xa8, 0x45, 0x78, 0x63, 0x68, 0x61, 0x6e, 0x67, 0x65)
-	if err != nil {
-		return
-	}
 	err = en.WriteInt(int(z.Exchange))
 	if err != nil {
 		err = msgp.WrapError(err, "Exchange")
-		return
-	}
-	// write "Period"
-	err = en.Append(0xa6, 0x50, 0x65, 0x72, 0x69, 0x6f, 0x64)
-	if err != nil {
 		return
 	}
 	err = z.Period.EncodeMsg(en)
@@ -148,15 +120,10 @@ func (z *Symbol) EncodeMsg(en *msgp.Writer) (err error) {
 // MarshalMsg implements msgp.Marshaler
 func (z *Symbol) MarshalMsg(b []byte) (o []byte, err error) {
 	o = msgp.Require(b, z.Msgsize())
-	// map header, size 3
-	// string "SymbolName"
-	o = append(o, 0x83, 0xaa, 0x53, 0x79, 0x6d, 0x62, 0x6f, 0x6c, 0x4e, 0x61, 0x6d, 0x65)
+	// array header, size 3
+	o = append(o, 0x93)
 	o = msgp.AppendString(o, z.SymbolName)
-	// string "Exchange"
-	o = append(o, 0xa8, 0x45, 0x78, 0x63, 0x68, 0x61, 0x6e, 0x67, 0x65)
 	o = msgp.AppendInt(o, int(z.Exchange))
-	// string "Period"
-	o = append(o, 0xa6, 0x50, 0x65, 0x72, 0x69, 0x6f, 0x64)
 	o, err = z.Period.MarshalMsg(o)
 	if err != nil {
 		err = msgp.WrapError(err, "Period")
@@ -167,51 +134,34 @@ func (z *Symbol) MarshalMsg(b []byte) (o []byte, err error) {
 
 // UnmarshalMsg implements msgp.Unmarshaler
 func (z *Symbol) UnmarshalMsg(bts []byte) (o []byte, err error) {
-	var field []byte
-	_ = field
 	var zb0001 uint32
-	zb0001, bts, err = msgp.ReadMapHeaderBytes(bts)
+	zb0001, bts, err = msgp.ReadArrayHeaderBytes(bts)
 	if err != nil {
 		err = msgp.WrapError(err)
 		return
 	}
-	for zb0001 > 0 {
-		zb0001--
-		field, bts, err = msgp.ReadMapKeyZC(bts)
+	if zb0001 != 3 {
+		err = msgp.ArrayError{Wanted: 3, Got: zb0001}
+		return
+	}
+	z.SymbolName, bts, err = msgp.ReadStringBytes(bts)
+	if err != nil {
+		err = msgp.WrapError(err, "SymbolName")
+		return
+	}
+	{
+		var zb0002 int
+		zb0002, bts, err = msgp.ReadIntBytes(bts)
 		if err != nil {
-			err = msgp.WrapError(err)
+			err = msgp.WrapError(err, "Exchange")
 			return
 		}
-		switch msgp.UnsafeString(field) {
-		case "SymbolName":
-			z.SymbolName, bts, err = msgp.ReadStringBytes(bts)
-			if err != nil {
-				err = msgp.WrapError(err, "SymbolName")
-				return
-			}
-		case "Exchange":
-			{
-				var zb0002 int
-				zb0002, bts, err = msgp.ReadIntBytes(bts)
-				if err != nil {
-					err = msgp.WrapError(err, "Exchange")
-					return
-				}
-				z.Exchange = ExchangeType(zb0002)
-			}
-		case "Period":
-			bts, err = z.Period.UnmarshalMsg(bts)
-			if err != nil {
-				err = msgp.WrapError(err, "Period")
-				return
-			}
-		default:
-			bts, err = msgp.Skip(bts)
-			if err != nil {
-				err = msgp.WrapError(err)
-				return
-			}
-		}
+		z.Exchange = ExchangeType(zb0002)
+	}
+	bts, err = z.Period.UnmarshalMsg(bts)
+	if err != nil {
+		err = msgp.WrapError(err, "Period")
+		return
 	}
 	o = bts
 	return
@@ -219,6 +169,6 @@ func (z *Symbol) UnmarshalMsg(bts []byte) (o []byte, err error) {
 
 // Msgsize returns an upper bound estimate of the number of bytes occupied by the serialized message
 func (z *Symbol) Msgsize() (s int) {
-	s = 1 + 11 + msgp.StringPrefixSize + len(z.SymbolName) + 9 + msgp.IntSize + 7 + z.Period.Msgsize()
+	s = 1 + msgp.StringPrefixSize + len(z.SymbolName) + msgp.IntSize + z.Period.Msgsize()
 	return
 }
