@@ -3,8 +3,10 @@ package sql
 import (
 	"context"
 	"fmt"
+	"github.com/InsuranceTech/shared/common/symbol"
 	"github.com/InsuranceTech/shared/config"
 	"github.com/InsuranceTech/shared/log"
+	model2 "github.com/InsuranceTech/shared/services/redis/model"
 	"github.com/InsuranceTech/shared/services/sql/model"
 	"github.com/go-pg/pg/v10"
 	"strconv"
@@ -62,6 +64,35 @@ func GetAllIndicators() ([]*model.Indicator, error) {
 	}
 
 	return indicators, nil
+}
+
+func UpdateTickData(symbol *symbol.Symbol, data *model2.BaseTickData) error {
+	conn := NewDBConn()
+	defer conn.Close()
+
+	exchange_type := int(symbol.Exchange)
+
+	_, err := conn.Exec(`
+		UPDATE 
+			symbols
+		SET
+			price_change = ?,
+			price_change_percent = ?,
+			last_price = ?,
+			open_price = ?,
+			high_price = ?,
+			low_price = ?,
+			base_volume = ?,
+			quote_volume = ?
+		WHERE
+		    exchange_type = ? AND name = ?
+		`, data.PriceChange, data.PriceChangePercent, data.LastPrice, data.OpenPrice, data.HighPrice, data.LowPrice, data.BaseVolume, data.QuoteVolume, exchange_type, symbol.SymbolName)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func NewDBConn() (con *pg.DB) {
