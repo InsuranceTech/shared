@@ -10,6 +10,7 @@ import (
 	"github.com/InsuranceTech/shared/common/symbol"
 	"github.com/InsuranceTech/shared/config"
 	"github.com/InsuranceTech/shared/log"
+	"github.com/InsuranceTech/shared/services/redis/model"
 	"github.com/redis/go-redis/v9"
 	"sync"
 	"time"
@@ -59,6 +60,10 @@ func GetkeyIndicatorResult(symbol *symbol.Symbol, indicatorId int64) string {
 
 func GetkeyDepth(symbol *symbol.Symbol) string {
 	return fmt.Sprintf("%s:Depth", symbol.ToStringNoPeriod())
+}
+
+func GetkeyTick(symbol *symbol.Symbol) string {
+	return fmt.Sprintf("%s:Tick", symbol.ToStringNoPeriod())
 }
 
 func SaveCandleSeries(periodicSeries *common.PeriodicCandleSeries, period period.Period) bool {
@@ -284,4 +289,35 @@ func UpdateIndicatorResultCollectionModelIfNeed(c *boosterModels.IndicatorResult
 		return true, UpdateIndicatorResultCollectionModel(c)
 	}
 	return false, nil
+}
+
+func SaveTickData(symbol *symbol.Symbol, data model.BaseTickData) error {
+	key := GetkeyTick(symbol)
+	bytes, err := data.MarshalMsg(nil)
+	if err != nil {
+		_log.Error("SaveTickData.MarshalMsg", err, symbol.ToString())
+		return err
+	}
+	cmdStatus := Client.Set(context.Background(), key, bytes, 0)
+	if cmdStatus.Err() != nil {
+		_log.Error("SaveTickData.Redis.Set", err, symbol.ToString())
+		return cmdStatus.Err()
+	}
+	return nil
+}
+
+func GetTickData(symbol *symbol.Symbol) (*model.BaseTickData, error) {
+	redisKey := GetkeyTick(symbol)
+	cmdStatus := Client.Get(context.Background(), redisKey)
+	if cmdStatus.Err() != nil {
+		return nil, cmdStatus.Err()
+	}
+	bytes, _ := cmdStatus.Bytes()
+	data := &model.BaseTickData{}
+	_, err := data.UnmarshalMsg(bytes)
+	if err != nil {
+		_log.Error("GetTickData.UnmarshalMsg", err, symbol.ToString())
+		return nil, err
+	}
+	return data, nil
 }
