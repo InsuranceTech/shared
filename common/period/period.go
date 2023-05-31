@@ -49,6 +49,10 @@ func (p Period) Minute() int {
 	return int(p)
 }
 
+func (p Period) Duration() time.Duration {
+	return time.Duration(p.Minute()) * time.Minute
+}
+
 func (p Period) MinuteStr() string {
 	return strconv.Itoa(int(p))
 }

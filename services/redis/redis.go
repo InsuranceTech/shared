@@ -141,13 +141,21 @@ func GetDepthData(symbol *symbol.Symbol) (*depth.DepthData, error) {
 }
 
 func SaveIndicatorResult(data *boosterModels.IndicatorResult) error {
+	return saveIndicatorResultTtl(data, 0)
+}
+
+func SaveIndicatorResultTTL(data *boosterModels.IndicatorResult) error {
+	return saveIndicatorResultTtl(data, data.Symbol.Period.Duration()+(time.Second*30))
+}
+
+func saveIndicatorResultTtl(data *boosterModels.IndicatorResult, ttl time.Duration) error {
 	key := GetkeyIndicatorResult(data.Symbol, data.IndicatorID)
 	bytes, err := data.MarshalMsg(nil)
 	if err != nil {
 		_log.Error("SaveIndicatorResult.MarshalMsg", err, data.Symbol.ToString())
 		return err
 	}
-	cmdStatus := Client.Set(context.Background(), key, bytes, 0)
+	cmdStatus := Client.Set(context.Background(), key, bytes, ttl)
 	if cmdStatus.Err() != nil {
 		_log.Error("SaveIndicatorResult.Redis.Set", cmdStatus.Err(), data.Symbol.ToString())
 		return cmdStatus.Err()
