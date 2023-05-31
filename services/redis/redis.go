@@ -291,7 +291,7 @@ func UpdateIndicatorResultCollectionModelIfNeed(c *boosterModels.IndicatorResult
 	return false, nil
 }
 
-func SaveTickData(symbol *symbol.Symbol, data model.BaseTickData) error {
+func SaveTickData(symbol *symbol.Symbol, data *model.BaseTickData) error {
 	key := GetkeyTick(symbol)
 	bytes, err := data.MarshalMsg(nil)
 	if err != nil {
