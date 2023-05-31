@@ -66,6 +66,10 @@ func GetAllIndicators() ([]*model.Indicator, error) {
 	return indicators, nil
 }
 
+func GetTestData() {
+
+}
+
 func UpdateTickData(symbol *symbol.Symbol, data *model2.BaseTickData) error {
 	conn := NewDBConn()
 	defer conn.Close()
