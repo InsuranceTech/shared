@@ -33,3 +33,19 @@ type Condition struct {
 	Value2      float64
 	Operator    ConditionOperator
 }
+
+func (r *Condition) IsSourceFixedValue() bool {
+	return r.Source == CO_FV_CANDLE_OPEN ||
+		r.Source == CO_FV_CANDLE_HIGH ||
+		r.Source == CO_FV_CANDLE_LOW ||
+		r.Source == CO_FV_CANDLE_CLOSE ||
+		r.Source == CO_FV_VALUE
+}
+
+func (r *Condition) IsTargetFixedValue() bool {
+	return r.Target == CO_FV_CANDLE_OPEN ||
+		r.Target == CO_FV_CANDLE_HIGH ||
+		r.Target == CO_FV_CANDLE_LOW ||
+		r.Target == CO_FV_CANDLE_CLOSE ||
+		r.Target == CO_FV_VALUE
+}

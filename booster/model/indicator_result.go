@@ -51,7 +51,7 @@ func (i *IndicatorResult) CheckCondition(condition *scanner.Condition) (bool, er
 		return !equalFloat(lastSourceValue, lastTargetValue), nil
 	case scanner.CO_CrossUp:
 		prevSourceValue, ok1 := GetPrevSourceValue(condition, i)
-		prevTargetValue, ok2 := GetPrevSourceValue(condition, i)
+		prevTargetValue, ok2 := GetPrevTargetValue(condition, i)
 		if !ok1 {
 			return false, errors.New("cannot read Prev Source Value")
 		}
@@ -61,7 +61,7 @@ func (i *IndicatorResult) CheckCondition(condition *scanner.Condition) (bool, er
 		return (lastSourceValue > lastTargetValue) && !(prevSourceValue > prevTargetValue), nil
 	case scanner.CO_CrossDown:
 		prevSourceValue, ok1 := GetPrevSourceValue(condition, i)
-		prevTargetValue, ok2 := GetPrevSourceValue(condition, i)
+		prevTargetValue, ok2 := GetPrevTargetValue(condition, i)
 		if !ok1 {
 			return false, errors.New("cannot read Prev Source Value")
 		}
@@ -175,6 +175,8 @@ func GetPrevSourceValue(c *scanner.Condition, result *IndicatorResult) (float64,
 		if result.PrevCandle != nil {
 			return result.PrevCandle.GetSource(common.ST_CLOSE), true
 		}
+	case scanner.CO_FV_VALUE:
+		return c.Value1, true
 	default:
 		return result.GetPrevValue(c.Source)
 	}
@@ -199,6 +201,8 @@ func GetPrevTargetValue(c *scanner.Condition, result *IndicatorResult) (float64,
 		if result.PrevCandle != nil {
 			return result.PrevCandle.GetSource(common.ST_CLOSE), true
 		}
+	case scanner.CO_FV_VALUE:
+		return c.Value1, true
 	default:
 		return result.GetPrevValue(c.Target)
 	}

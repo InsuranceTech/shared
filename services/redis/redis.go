@@ -248,20 +248,6 @@ func UpdateIndicatorResultCollectionModel(data *boosterModels.IndicatorResultCol
 			wait.Done()
 		}(keyPeriod)
 	}
-
-	//cmdStatus := Client.Get(context.Background(), key)
-	//if cmdStatus.Err() != nil {
-	//	return cmdStatus.Err()
-	//}
-	//bytes, err := cmdStatus.Bytes()
-	//if err != nil {
-	//	return err
-	//}
-	//_, err = data.UnmarshalMsg(bytes)
-	//if err != nil {
-	//	_log.Error("UpdateIndicatorResultCollectionModel.UnmarshalMsg", err)
-	//	return err
-	//}
 	wait.Wait()
 	data.Indexes()
 	return nil
