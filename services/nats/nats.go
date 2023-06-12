@@ -132,7 +132,7 @@ func OnChangeIndicatorCollection(handler func()) (*nats.Subscription, error) {
 	})
 }
 
-func OnRequestIndicatorScanner(handler func(request *model3.ReqIndicatorScanner) model3.ReqIndicatorScanner) (*nats.Subscription, error) {
+func OnRequestIndicatorScanner(handler func(request *model3.ReqIndicatorScanner) *model3.ResIndicatorScanner) (*nats.Subscription, error) {
 	subject := SUBJECT_KEY_INDICATOR_SCANNER
 	return Client.Subscribe(subject, func(msg *nats.Msg) {
 		var req *model3.ReqIndicatorScanner
