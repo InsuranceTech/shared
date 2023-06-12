@@ -147,7 +147,8 @@ type Firestore struct {
 // ProviderBinance Binance config
 type ProviderBinance struct {
 	API_URL                     string `mapstructure:"API_URL,omitempty"`
-	WS_URL                      string `mapstructure:"WS_URL,omitempty"`
+	WS_URL_SPOT                 string `mapstructure:"WS_URL_SPOT,omitempty"`
+	WS_URL_FUTURE               string `mapstructure:"WS_URL_FUTURE,omitempty"`
 	FAPI_URL                    string `mapstructure:"FAPI_URL,omitempty"`
 	FTAKER_LONG_SHORT_RATIO_URL string `mapstructure:"FTAKER_LONG_SHORT_RATIO_URL,omitempty"`
 	API_KEY                     string `mapstructure:"API_KEY,omitempty"`
