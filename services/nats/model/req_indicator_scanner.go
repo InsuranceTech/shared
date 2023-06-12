@@ -7,7 +7,7 @@ import (
 )
 
 type ReqIndicatorScanner struct {
-	ExchangeType symbol.ExchangeType `json:"exchange_type"`
-	Period       period.Period       `json:"period"`
-	Conditions   []scanner.Condition `json:"conditions"`
+	ExchangeType symbol.ExchangeType  `json:"exchange_type"`
+	Period       period.Period        `json:"period"`
+	Conditions   []*scanner.Condition `json:"conditions"`
 }
