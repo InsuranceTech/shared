@@ -25,13 +25,13 @@ const (
 )
 
 type Condition struct {
-	IndicatorID int
-	FuncName    string
-	Source      string
-	Target      string
-	Value1      float64
-	Value2      float64
-	Operator    ConditionOperator
+	IndicatorID int               `json:"indicator_id"`
+	FuncName    string            `json:"func_name"`
+	Source      string            `json:"source"`
+	Target      string            `json:"target"`
+	Value1      float64           `json:"value_1"`
+	Value2      float64           `json:"value_2"`
+	Operator    ConditionOperator `json:"operator"`
 }
 
 func (r *Condition) IsSourceFixedValue() bool {

@@ -17,9 +17,9 @@ const (
 )
 
 type Symbol struct {
-	SymbolName string
-	Exchange   ExchangeType
-	Period     period.Period
+	SymbolName string        `json:"symbolName"`
+	Exchange   ExchangeType  `json:"exchange"`
+	Period     period.Period `json:"period"`
 }
 
 // ToString : Çıktı: EXCHANGE:SYMBOL:PERIOD (StringBuilder sebebi: https://freshman.tech/snippets/go/string-concatenation/ )

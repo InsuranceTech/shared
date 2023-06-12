@@ -1,15 +1,22 @@
 package nats
 
 import (
+	"encoding/json"
 	"fmt"
 	boosterModels "github.com/InsuranceTech/shared/booster/model"
 	"github.com/InsuranceTech/shared/common"
 	"github.com/InsuranceTech/shared/common/symbol"
 	"github.com/InsuranceTech/shared/config"
 	"github.com/InsuranceTech/shared/log"
+	model3 "github.com/InsuranceTech/shared/services/nats/model"
 	"github.com/nats-io/nats.go"
 	"github.com/spf13/cast"
 	"strconv"
+)
+
+const (
+	SUBJECT_KEY_ChangedIndicatorCollection = "CHANGED_IDNICATOR_COLLECTION"
+	SUBJECT_KEY_INDICATOR_SCANNER          = "INDICATOR_SCANNER"
 )
 
 var (
@@ -115,6 +122,39 @@ func OnChangeBoosterSignals(handler func(symbol *symbol.Symbol, funcName string,
 	})
 }
 
+// OnChangeIndicatorCollection Redisteki gösterge koleksiyonu değiştirildiğinde tetiklenir
+func OnChangeIndicatorCollection(handler func()) (*nats.Subscription, error) {
+	subject := SUBJECT_KEY_ChangedIndicatorCollection
+	return Client.Subscribe(subject, func(msg *nats.Msg) {
+		go func() {
+			handler()
+		}()
+	})
+}
+
+func OnRequestIndicatorScanner(handler func(request *model3.ReqIndicatorScanner) model3.ReqIndicatorScanner) (*nats.Subscription, error) {
+	subject := SUBJECT_KEY_INDICATOR_SCANNER
+	return Client.Subscribe(subject, func(msg *nats.Msg) {
+		var req *model3.ReqIndicatorScanner
+		err := json.Unmarshal(msg.Data, &req)
+
+		// Error JSON Deserialize
+		if err != nil {
+			response := model3.ResIndicatorScanner{
+				ResultCode: -1, // Error json format
+				Results:    nil,
+			}
+			responseBytes, _ := json.Marshal(response)
+			msg.Respond(responseBytes)
+			return
+		}
+
+		handlerResponse := handler(req)
+		responseBytes, _ := json.Marshal(handlerResponse)
+		msg.Respond(responseBytes)
+	})
+}
+
 //endregion
 
 // region Triggers
@@ -150,6 +190,17 @@ func TriggerChangedBoosterSignal(data *boosterModels.IndicatorResult) {
 	err := Client.PublishMsg(&msg)
 	if err != nil {
 		_log.Error("TriggerChangedBoosterSignal", "PublishMsg", err)
+	}
+}
+
+// TriggerChangedIndicatorCollection Göstergeler hesaplandıktan sonra toplu halde redise kaydedikten sonra tetiklenir
+func TriggerChangedIndicatorCollection() {
+	msg := nats.Msg{
+		Subject: SUBJECT_KEY_ChangedIndicatorCollection,
+	}
+	err := Client.PublishMsg(&msg)
+	if err != nil {
+		_log.Error("TriggerChangedIndicatorCollection", "PublishMsg", err)
 	}
 }
 
