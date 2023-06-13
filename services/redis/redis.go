@@ -224,8 +224,13 @@ func GetIndicatorResultCollection() (*boosterModels.IndicatorResultCollection, e
 
 func UpdateIndicatorResultCollectionModel(data *boosterModels.IndicatorResultCollection) error {
 	key := "INDICATOR_RESULTS"
-	wait := sync.WaitGroup{}
+	keyTime := "INDICATOR_RESULTS.TIME"
+	lastTimeCmd := Client.Get(context.Background(), keyTime)
+	if lastTimeCmd.Err() == nil {
+		data.LastTime, _ = lastTimeCmd.Int64()
+	}
 
+	wait := sync.WaitGroup{}
 	for _, keyPeriod := range period.AllPeriods {
 		wait.Add(1)
 		go func(p period.Period) {
