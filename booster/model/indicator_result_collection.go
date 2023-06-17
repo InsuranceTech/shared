@@ -247,10 +247,10 @@ func (c *IndicatorResultCollection) Filters(exchangeType symbol.ExchangeType, pe
 }
 
 // CheckAnd VE Bağlacıyla tüm koşulları kontrol eder
-func (c *IndicatorResultCollection) CheckAnd(symbol *symbol.Symbol, conditions []*scanner.Condition) (bool, error) {
+func (c *IndicatorResultCollection) CheckAnd(symbol *symbol.Symbol, conditions []scanner.Condition) (bool, error) {
 	for _, condition := range conditions {
 		model := c.GetIndicatorsPFES(condition.FuncName, symbol)
-		ok, err := model.CheckCondition(condition)
+		ok, err := model.CheckCondition(&condition)
 		if err != nil {
 			return false, err
 		}
