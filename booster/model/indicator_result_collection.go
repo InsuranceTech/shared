@@ -199,8 +199,8 @@ func (c *IndicatorResultCollection) Filters(exchangeType symbol.ExchangeType, pe
 	// Koşullar "VE" bağlacıyla bağlandığı için ilk koşul elemanını tara ve firstItems'a ekle
 	firstCondition := conditions[0]
 	firstItems := make([]*IndicatorResult, 0)
-	items := c.GetIndicatorsPFE(period, firstCondition.FuncName, exchangeType)
-	for _, item := range items {
+	symbols := c.GetIndicatorsPFE(period, firstCondition.FuncName, exchangeType)
+	for _, item := range symbols {
 		ok, err := item.CheckCondition(firstCondition)
 		if err != nil {
 			log.Error("Condition error", err)
@@ -244,4 +244,19 @@ func (c *IndicatorResultCollection) Filters(exchangeType symbol.ExchangeType, pe
 	}
 
 	return result
+}
+
+// CheckAnd VE Bağlacıyla tüm koşulları kontrol eder
+func (c *IndicatorResultCollection) CheckAnd(symbol *symbol.Symbol, conditions []*scanner.Condition) (bool, error) {
+	for _, condition := range conditions {
+		model := c.GetIndicatorsPFES(condition.FuncName, symbol)
+		ok, err := model.CheckCondition(condition)
+		if err != nil {
+			return false, err
+		}
+		if ok == false {
+			return false, nil
+		}
+	}
+	return true, nil
 }

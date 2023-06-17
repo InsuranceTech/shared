@@ -2,6 +2,7 @@ package sql
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"github.com/InsuranceTech/shared/common/symbol"
 	"github.com/InsuranceTech/shared/config"
@@ -22,7 +23,7 @@ func SetConfig(cf *config.Config) {
 }
 
 func Ping() (bool, error) {
-	conn := NewDBConn()
+	conn := NewDBConn("")
 	defer conn.Close()
 	err := conn.Ping(context.Background())
 	if err != nil {
@@ -32,7 +33,7 @@ func Ping() (bool, error) {
 }
 
 func GetAllSymbols() ([]*model.Symbol, error) {
-	conn := NewDBConn()
+	conn := NewDBConn("")
 	defer conn.Close()
 	var symbols = make([]*model.Symbol, 0)
 
@@ -50,7 +51,7 @@ func GetAllSymbols() ([]*model.Symbol, error) {
 }
 
 func GetAllIndicators() ([]*model.Indicator, error) {
-	conn := NewDBConn()
+	conn := NewDBConn("")
 	defer conn.Close()
 	var indicators = make([]*model.Indicator, 0)
 
@@ -71,7 +72,7 @@ func GetTestData() {
 }
 
 func UpdateTickData(symbol *symbol.Symbol, data *model2.BaseTickData) error {
-	conn := NewDBConn()
+	conn := NewDBConn("")
 	defer conn.Close()
 
 	exchange_type := int(symbol.Exchange)
@@ -99,16 +100,21 @@ func UpdateTickData(symbol *symbol.Symbol, data *model2.BaseTickData) error {
 	return nil
 }
 
-func NewDBConn() (con *pg.DB) {
+func NewDBConn(schema string) (con *pg.DB) {
+	if schema == "" {
+		schema = cfg.Postgresql.SCHEMA
+	}
+
 	address := fmt.Sprintf("%s:%s", cfg.Postgresql.HOST, strconv.Itoa(cfg.Postgresql.PORT))
 	options := &pg.Options{
-		User:     cfg.Postgresql.USER,
-		Password: cfg.Postgresql.PASS,
-		Addr:     address,
-		Database: cfg.Postgresql.DEFAULT_DB,
+		TLSConfig: &tls.Config{InsecureSkipVerify: true},
+		User:      cfg.Postgresql.USER,
+		Password:  cfg.Postgresql.PASS,
+		Addr:      address,
+		Database:  cfg.Postgresql.DEFAULT_DB,
 		OnConnect: func(ctx context.Context, conn *pg.Conn) error {
-			if cfg.Postgresql.SCHEMA != "" {
-				_, err := conn.Exec("set search_path=?", cfg.Postgresql.SCHEMA)
+			if schema != "" {
+				_, err := conn.Exec("set search_path=?", schema)
 				if err != nil {
 					_log.Fatal("NewDBConn.OnConnect", err)
 				}
@@ -118,4 +124,20 @@ func NewDBConn() (con *pg.DB) {
 	}
 	con = pg.Connect(options)
 	return con
+}
+
+func GetAllIndicatorAlarms() ([]*model.AlarmIndicator, error) {
+	conn := NewDBConn("alarm")
+	defer conn.Close()
+	var indicators = make([]*model.AlarmIndicator, 0)
+
+	err := conn.Model(&indicators).
+		Select()
+
+	if err != nil {
+		_log.Error("GetAllIndicatorAlarms", err)
+		return nil, err
+	}
+
+	return indicators, nil
 }
