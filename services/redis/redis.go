@@ -12,7 +12,8 @@ import (
 	"github.com/InsuranceTech/shared/config"
 	"github.com/InsuranceTech/shared/log"
 	"github.com/InsuranceTech/shared/services/redis/model"
-	model2 "github.com/InsuranceTech/shared/services/sql/model"
+	sqlModel "github.com/InsuranceTech/shared/services/sql/model"
+	"github.com/korovkin/limiter"
 	"github.com/redis/go-redis/v9"
 	"strconv"
 	"sync"
@@ -26,9 +27,10 @@ const (
 )
 
 var (
-	Client *redis.Client
-	_ctx   context.Context
-	_log   = log.CreateTag("Redis")
+	Client       *redis.Client
+	_ctx         context.Context
+	_log         = log.CreateTag("Redis")
+	_limitWorker *limiter.ConcurrencyLimiter
 )
 
 func Init(ctx context.Context, cfg *config.Config) {
@@ -46,6 +48,7 @@ func Init(ctx context.Context, cfg *config.Config) {
 	} else {
 		_log.Fatal("Connection Error", status.Err())
 	}
+	_limitWorker = limiter.NewConcurrencyLimiter(10)
 }
 
 func OnConnect(ctx context.Context, conn *redis.Conn) error {
@@ -102,6 +105,15 @@ func SaveCandleSeriesAsync(periodicSeries *common.PeriodicCandleSeries, period p
 			onComplete(status)
 		}
 	}()
+}
+
+func SaveCandleSeriesLWAsync(periodicSeries *common.PeriodicCandleSeries, period period.Period, onComplete func(status bool)) {
+	_limitWorker.Execute(func() {
+		status := SaveCandleSeries(periodicSeries, period)
+		if onComplete != nil {
+			onComplete(status)
+		}
+	})
 }
 
 func GetCandleSeries(symbol *symbol.Symbol) (*common.CandleSeries, error) {
@@ -322,7 +334,7 @@ func GetTickData(symbol *symbol.Symbol) (*model.BaseTickData, error) {
 	return data, nil
 }
 
-func GetAllIndicatorAlarms() ([]*model2.AlarmIndicator, error) {
+func GetAllIndicatorAlarms() ([]*sqlModel.AlarmIndicator, error) {
 	scanCmd := Client.Keys(_ctx, _ALARM_INDICATOR_PREFIX+":*")
 	if scanCmd.Err() != nil {
 		return nil, scanCmd.Err()
@@ -335,9 +347,9 @@ func GetAllIndicatorAlarms() ([]*model2.AlarmIndicator, error) {
 	}
 
 	resultStrings, _ := valuesCmd.Result()
-	results := make([]*model2.AlarmIndicator, len(resultStrings))
+	results := make([]*sqlModel.AlarmIndicator, len(resultStrings))
 	for i, resultString := range resultStrings {
-		data := &model2.AlarmIndicator{}
+		data := &sqlModel.AlarmIndicator{}
 		_ = json.Unmarshal([]byte(resultString.(string)), &data)
 		results[i] = data
 	}
@@ -345,7 +357,7 @@ func GetAllIndicatorAlarms() ([]*model2.AlarmIndicator, error) {
 	return results, nil
 }
 
-func SetAllIndicatorAlarms(data []*model2.AlarmIndicator) (bool, error) {
+func SetAllIndicatorAlarms(data []*sqlModel.AlarmIndicator) (bool, error) {
 	var items []interface{}
 	for _, i := range data {
 		bytes, _ := json.Marshal(i)
