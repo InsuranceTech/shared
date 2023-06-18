@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	boosterModels "github.com/InsuranceTech/shared/booster/model"
 	"github.com/InsuranceTech/shared/common"
@@ -11,15 +12,22 @@ import (
 	"github.com/InsuranceTech/shared/config"
 	"github.com/InsuranceTech/shared/log"
 	"github.com/InsuranceTech/shared/services/redis/model"
+	model2 "github.com/InsuranceTech/shared/services/sql/model"
 	"github.com/redis/go-redis/v9"
+	"strconv"
 	"sync"
 	"time"
 )
 
 // Msgpack : https://github.com/smallnest/gosercomp/blob/master/benchmark.png
 
+const (
+	_ALARM_INDICATOR_PREFIX = "ALARM:INDICATOR"
+)
+
 var (
 	Client *redis.Client
+	_ctx   context.Context
 	_log   = log.CreateTag("Redis")
 )
 
@@ -31,6 +39,7 @@ func Init(ctx context.Context, cfg *config.Config) {
 		DB:         cfg.Redis.DEFAULT_DB,
 		OnConnect:  OnConnect,
 	})
+	_ctx = ctx
 	status := Client.Ping(ctx)
 	if status.Err() == nil {
 		_log.Info("Connected")
@@ -311,4 +320,57 @@ func GetTickData(symbol *symbol.Symbol) (*model.BaseTickData, error) {
 		return nil, err
 	}
 	return data, nil
+}
+
+func GetAllIndicatorAlarms() ([]*model2.AlarmIndicator, error) {
+	scanCmd := Client.Keys(_ctx, _ALARM_INDICATOR_PREFIX+":*")
+	if scanCmd.Err() != nil {
+		return nil, scanCmd.Err()
+	}
+	keys, _ := scanCmd.Result()
+
+	valuesCmd := Client.MGet(_ctx, keys...)
+	if valuesCmd.Err() != nil {
+		return nil, valuesCmd.Err()
+	}
+
+	resultStrings, _ := valuesCmd.Result()
+	results := make([]*model2.AlarmIndicator, len(resultStrings))
+	for i, resultString := range resultStrings {
+		data := &model2.AlarmIndicator{}
+		_ = json.Unmarshal([]byte(resultString.(string)), &data)
+		results[i] = data
+	}
+
+	return results, nil
+}
+
+func SetAllIndicatorAlarms(data []*model2.AlarmIndicator) (bool, error) {
+	var items []interface{}
+	for _, i := range data {
+		bytes, _ := json.Marshal(i)
+		items = append(items, _ALARM_INDICATOR_PREFIX+":"+strconv.Itoa(i.ID), bytes)
+	}
+	status := Client.MSet(_ctx, items)
+	if status.Err() != nil {
+		return false, status.Err()
+	} else {
+		return true, nil
+	}
+}
+
+func ClearAllIndicatorAlarms() (bool, error) {
+	scanCmd := Client.Keys(_ctx, _ALARM_INDICATOR_PREFIX+":*")
+	if scanCmd.Err() != nil {
+		return false, scanCmd.Err()
+	}
+	keys, _ := scanCmd.Result()
+
+	cmd := Client.Del(_ctx, keys...)
+
+	if cmd.Err() != nil {
+		return false, cmd.Err()
+	}
+
+	return true, nil
 }
