@@ -48,7 +48,10 @@ func Init(ctx context.Context, cfg *config.Config) {
 	} else {
 		_log.Fatal("Connection Error", status.Err())
 	}
-	_limitWorker = limiter.NewConcurrencyLimiter(10)
+}
+
+func SetLimitWorker(limit int) {
+	_limitWorker = limiter.NewConcurrencyLimiter(limit)
 }
 
 func OnConnect(ctx context.Context, conn *redis.Conn) error {
