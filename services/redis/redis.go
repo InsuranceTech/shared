@@ -179,12 +179,12 @@ func SaveIndicatorResultTTL(data *boosterModels.IndicatorResult) error {
 
 func saveIndicatorResultTtl(data *boosterModels.IndicatorResult, ttl time.Duration) error {
 	key := GetkeyIndicatorResult(data.Symbol, data.IndicatorID)
-	//bytes, err := data.MarshalMsg(nil)
-	/*	if err != nil {
-			_log.Error("SaveIndicatorResult.MarshalMsg", err, data.Symbol.ToString())
-			return err
-		}
-	*/cmdStatus := Client.Set(context.Background(), key, data, ttl)
+	bytes, err := json.Marshal(data)
+	if err != nil {
+		_log.Error("SaveIndicatorResult.MarshalMsg", err, data.Symbol.ToString())
+		return err
+	}
+	cmdStatus := Client.Set(context.Background(), key, bytes, ttl)
 	if cmdStatus.Err() != nil {
 		_log.Error("SaveIndicatorResult.Redis.Set", cmdStatus.Err(), data.Symbol.ToString())
 		return cmdStatus.Err()
