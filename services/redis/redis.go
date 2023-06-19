@@ -179,7 +179,7 @@ func SaveIndicatorResultTTL(data *boosterModels.IndicatorResult) error {
 
 func saveIndicatorResultTtl(data *boosterModels.IndicatorResult, ttl time.Duration) error {
 	key := GetkeyIndicatorResult(data.Symbol, data.IndicatorID)
-	bytes, err := data.MarshalMsg(nil)
+	bytes, err := json.Marshal(data)
 	if err != nil {
 		_log.Error("SaveIndicatorResult.MarshalMsg", err, data.Symbol.ToString())
 		return err
