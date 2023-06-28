@@ -141,3 +141,19 @@ func GetAllIndicatorAlarms() ([]*model.AlarmIndicator, error) {
 
 	return indicators, nil
 }
+
+func GetAllBoosterAlarms() ([]*model.AlarmBooster, error) {
+	conn := NewDBConn("alarm")
+	defer conn.Close()
+	var boosters = make([]*model.AlarmBooster, 0)
+
+	err := conn.Model(&boosters).
+		Select()
+
+	if err != nil {
+		_log.Error("GetAllBoosterAlarms", err)
+		return nil, err
+	}
+
+	return boosters, nil
+}

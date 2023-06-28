@@ -24,6 +24,7 @@ import (
 
 const (
 	_ALARM_INDICATOR_PREFIX = "ALARM:INDICATOR"
+	_ALARM_BOOSTER_PREFIX   = "ALARM:BOOSTER"
 )
 
 var (
@@ -375,6 +376,59 @@ func SetAllIndicatorAlarms(data []*sqlModel.AlarmIndicator) (bool, error) {
 }
 
 func ClearAllIndicatorAlarms() (bool, error) {
+	scanCmd := Client.Keys(_ctx, _ALARM_INDICATOR_PREFIX+":*")
+	if scanCmd.Err() != nil {
+		return false, scanCmd.Err()
+	}
+	keys, _ := scanCmd.Result()
+
+	cmd := Client.Del(_ctx, keys...)
+
+	if cmd.Err() != nil {
+		return false, cmd.Err()
+	}
+
+	return true, nil
+}
+
+func GetAllBoosterAlarms() ([]*sqlModel.AlarmBooster, error) {
+	scanCmd := Client.Keys(_ctx, _ALARM_INDICATOR_PREFIX+":*")
+	if scanCmd.Err() != nil {
+		return nil, scanCmd.Err()
+	}
+	keys, _ := scanCmd.Result()
+
+	valuesCmd := Client.MGet(_ctx, keys...)
+	if valuesCmd.Err() != nil {
+		return nil, valuesCmd.Err()
+	}
+
+	resultStrings, _ := valuesCmd.Result()
+	results := make([]*sqlModel.AlarmBooster, len(resultStrings))
+	for i, resultString := range resultStrings {
+		data := &sqlModel.AlarmBooster{}
+		_ = json.Unmarshal([]byte(resultString.(string)), &data)
+		results[i] = data
+	}
+
+	return results, nil
+}
+
+func SetAllBoosterAlarms(data []*sqlModel.AlarmBooster) (bool, error) {
+	var items []interface{}
+	for _, i := range data {
+		bytes, _ := json.Marshal(i)
+		items = append(items, _ALARM_INDICATOR_PREFIX+":"+strconv.Itoa(i.ID), bytes)
+	}
+	status := Client.MSet(_ctx, items)
+	if status.Err() != nil {
+		return false, status.Err()
+	} else {
+		return true, nil
+	}
+}
+
+func ClearAllBoosterAlarms() (bool, error) {
 	scanCmd := Client.Keys(_ctx, _ALARM_INDICATOR_PREFIX+":*")
 	if scanCmd.Err() != nil {
 		return false, scanCmd.Err()
