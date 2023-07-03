@@ -250,9 +250,7 @@ func TriggerChangedIndicatorCollection() {
 }
 
 func TriggerSymbolTick(symbol *symbol.Symbol, closePrice float64, priceChange float64, priceChangePercent float64, volume float64) {
-	msg := nats.Msg{
-		Subject: SUBJECT_KEY_MINI_TICK,
-	}
+	msg := nats.NewMsg(SUBJECT_KEY_MINI_TICK)
 
 	msg.Header.Add("symbol", symbol.ToStringNoPeriod())
 	msg.Header.Add("close", cast.ToString(closePrice))
@@ -260,9 +258,9 @@ func TriggerSymbolTick(symbol *symbol.Symbol, closePrice float64, priceChange fl
 	msg.Header.Add("changePercent", cast.ToString(priceChangePercent))
 	msg.Header.Add("volume", cast.ToString(volume))
 
-	err := Client.PublishMsg(&msg)
+	err := Client.PublishMsg(msg)
 	if err != nil {
-		_log.Error("TriggerChangedIndicatorCollection", "PublishMsg", err)
+		_log.Error("TriggerSymbolTick", "PublishMsg", err)
 	}
 }
 
