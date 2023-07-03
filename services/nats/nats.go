@@ -17,6 +17,7 @@ import (
 const (
 	SUBJECT_KEY_ChangedIndicatorCollection = "CHANGED_IDNICATOR_COLLECTION"
 	SUBJECT_KEY_INDICATOR_SCANNER          = "INDICATOR_SCANNER"
+	SUBJECT_KEY_MINI_TICK                  = "SYMBOL_TICK"
 )
 
 var (
@@ -155,6 +156,50 @@ func OnRequestIndicatorScanner(handler func(request *model3.ReqIndicatorScanner)
 	})
 }
 
+func OnTriggerAllSymbolTick(handler func(symbol *symbol.Symbol, closePrice float64, priceChange float64, priceChangePercent float64, volume float64)) (*nats.Subscription, error) {
+	subject := SUBJECT_KEY_MINI_TICK
+	return Client.Subscribe(subject, func(msg *nats.Msg) {
+		symbolStr := msg.Header.Get("symbol")
+		closeStr := msg.Header.Get("close")
+		changeStr := msg.Header.Get("change")
+		changePercentStr := msg.Header.Get("changePercent")
+		volumeStr := msg.Header.Get("volume")
+
+		if symbolStr == "" || closeStr == "" || changeStr == "" || changePercentStr == "" || volumeStr == "" {
+			return
+		}
+
+		_symbol, ok := symbol.ParseSymbolEx(symbolStr)
+		if !ok {
+			return
+		}
+		_close, err := cast.ToFloat64E(closeStr)
+		if err != nil {
+			log.Error("OnTriggerSymbolTick.ParseClose", err)
+			return
+		}
+		_change, err := cast.ToFloat64E(changeStr)
+		if err != nil {
+			log.Error("OnTriggerSymbolTick.ParseChange", err)
+			return
+		}
+		_changePercent, err := cast.ToFloat64E(changePercentStr)
+		if err != nil {
+			log.Error("OnTriggerSymbolTick.ParseChangePercent", err)
+			return
+		}
+		_volume, err := cast.ToFloat64E(volumeStr)
+		if err != nil {
+			log.Error("OnTriggerSymbolTick.ParseVolume", err)
+			return
+		}
+
+		go func() {
+			handler(_symbol, _close, _change, _changePercent, _volume)
+		}()
+	})
+}
+
 //endregion
 
 // region Triggers
@@ -198,6 +243,23 @@ func TriggerChangedIndicatorCollection() {
 	msg := nats.Msg{
 		Subject: SUBJECT_KEY_ChangedIndicatorCollection,
 	}
+	err := Client.PublishMsg(&msg)
+	if err != nil {
+		_log.Error("TriggerChangedIndicatorCollection", "PublishMsg", err)
+	}
+}
+
+func TriggerSymbolTick(symbol *symbol.Symbol, closePrice float64, priceChange float64, priceChangePercent float64, volume float64) {
+	msg := nats.Msg{
+		Subject: SUBJECT_KEY_MINI_TICK,
+	}
+
+	msg.Header.Add("symbol", symbol.ToStringNoPeriod())
+	msg.Header.Add("close", cast.ToString(closePrice))
+	msg.Header.Add("change", cast.ToString(priceChange))
+	msg.Header.Add("changePercent", cast.ToString(priceChangePercent))
+	msg.Header.Add("volume", cast.ToString(volume))
+
 	err := Client.PublishMsg(&msg)
 	if err != nil {
 		_log.Error("TriggerChangedIndicatorCollection", "PublishMsg", err)
