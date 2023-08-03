@@ -67,6 +67,13 @@ func GetkeyCandles(symbol *symbol.Symbol) string {
 	return fmt.Sprintf("%s:Candles", symbol.ToString())
 }
 
+// GetkeyOpenCandle
+// Redisteki adresini döndürür
+// Örnek: BINANCE_SPOT:BTCUSDT:5:Open
+func GetkeyOpenCandle(symbol *symbol.Symbol) string {
+	return fmt.Sprintf("%s:Open", symbol.ToString())
+}
+
 // GetkeyIndicatorResult
 // Redisteki adresini döndürür
 // Örnek: BINANCE_SPOT:BTCUSDT:5:Candles
@@ -442,4 +449,42 @@ func ClearAllBoosterAlarms() (bool, error) {
 	}
 
 	return true, nil
+}
+
+func GetOpenCandle(symbol *symbol.Symbol) (*common.Candle, error) {
+	key := GetkeyOpenCandle(symbol)
+	cmdStatus := Client.Get(context.Background(), key)
+	if cmdStatus.Err() != nil {
+		return nil, cmdStatus.Err()
+	}
+	bytes, err := cmdStatus.Bytes()
+	if err != nil {
+		return nil, err
+	}
+	c := &common.Candle{}
+	_, err = c.UnmarshalMsg(bytes)
+	if err != nil {
+		_log.Error("GetOpenCandle.UnMarshalMsg", err, symbol.ToString())
+		return nil, err
+	}
+	return c, nil
+}
+
+func SaveOpenCandle(symbol *symbol.Symbol, candle *common.Candle) bool {
+	if candle == nil {
+		return false
+	}
+	bytes, err := candle.MarshalMsg(nil)
+	if err != nil {
+		_log.Error("SaveOpenCandle.MarshalMsg", err)
+		return false
+	}
+
+	key := GetkeyOpenCandle(symbol)
+	status := Client.Set(context.Background(), key, bytes, 0)
+	if status.Err() != nil {
+		_log.Error("SaveOpenCandle.Redis.Set", status.Err())
+		return false
+	}
+	return true
 }
