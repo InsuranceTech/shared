@@ -50,6 +50,25 @@ func GetAllSymbols() ([]*model.Symbol, error) {
 	return symbols, nil
 }
 
+func GetSymbols(condition string, params ...interface{}) ([]*model.Symbol, error) {
+	conn := NewDBConn("")
+	defer conn.Close()
+	var symbols = make([]*model.Symbol, 0)
+
+	err := conn.Model(&symbols).
+		Relation("BaseCoin").
+		Relation("QuoteCoin").
+		Where(condition, params).
+		Select()
+
+	if err != nil {
+		_log.Error("GetAllSymbols", err)
+		return nil, err
+	}
+
+	return symbols, nil
+}
+
 func GetAllIndicators() ([]*model.Indicator, error) {
 	conn := NewDBConn("")
 	defer conn.Close()
