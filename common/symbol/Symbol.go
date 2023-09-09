@@ -4,6 +4,7 @@ package symbol
 
 import (
 	"github.com/InsuranceTech/shared/common/period"
+	"github.com/InsuranceTech/shared/services/sql/model"
 	"strconv"
 	"strings"
 )
@@ -52,6 +53,38 @@ func (ex *ExchangeType) ToString() string {
 	} else {
 		return "UNK"
 	}
+}
+
+func GetSymbolNames(symbols []*Symbol) []string {
+	names := make([]string, 0)
+	if len(symbols) == 0 {
+		return names
+	}
+	for _, s := range symbols {
+		names = append(names, s.ToString())
+	}
+	return names
+}
+
+func FromModelSymbols(symbols []*model.Symbol) []*Symbol {
+	retSymbols := make([]*Symbol, 0)
+	if len(symbols) == 0 {
+		return retSymbols
+	}
+	for _, s := range symbols {
+		switch s.ExchangeType {
+		case int(BINANCE_SPOT):
+			retSymbols = append(retSymbols, NewBinanceSpotSymbol(s.Name, period.NonePeriod))
+			break
+		case int(BINANCE_USDT_FUTURE):
+			retSymbols = append(retSymbols, NewBinanceUsdtFutureSymbol(s.Name, period.NonePeriod))
+			break
+		case int(BINANCE_COIN_FUTURE):
+			retSymbols = append(retSymbols, NewBinanceCoinFutureSymbol(s.Name, period.NonePeriod))
+			break
+		}
+	}
+	return retSymbols
 }
 
 func NewSymbol(exchangeType ExchangeType, symbol string, period period.Period) *Symbol {
