@@ -83,7 +83,7 @@ func (z *Candle) DecodeMsg(dc *msgp.Reader) (err error) {
 // EncodeMsg implements msgp.Encodable
 func (z *Candle) EncodeMsg(en *msgp.Writer) (err error) {
 	// array header, size 6
-	err = en.Append(0x96)
+	err = en.Append(0xE1)
 	if err != nil {
 		return
 	}
@@ -146,7 +146,7 @@ func (z *Candle) EncodeMsg(en *msgp.Writer) (err error) {
 func (z *Candle) MarshalMsg(b []byte) (o []byte, err error) {
 	o = msgp.Require(b, z.Msgsize())
 	// array header, size 6
-	o = append(o, 0x96)
+	o = append(o, 0xE1)
 	if z.Date == nil {
 		o = msgp.AppendNil(o)
 	} else {
