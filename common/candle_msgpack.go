@@ -145,7 +145,7 @@ func (z *Candle) EncodeMsg(en *msgp.Writer) (err error) {
 // MarshalMsg implements msgp.Marshaler
 func (z *Candle) MarshalMsg(b []byte) (o []byte, err error) {
 	o = msgp.Require(b, z.Msgsize())
-	// array header, size 6
+	// array header, size 9
 	o = append(o, 0xE1)
 	if z.Date == nil {
 		o = msgp.AppendNil(o)
