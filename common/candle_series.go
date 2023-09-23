@@ -217,12 +217,15 @@ func (series *CandleSeries) ToPeriods(fromPeriod period.Period, toPeriod period.
 		if fillCandle == nil || toPeriod.IsTriggerTime(candle.Date) || candle.Date.UnixMilli() > lastSubCandleDate {
 			// Yeni mum aç
 			fillCandle = &Candle{
-				Date:   *&candle.Date,
-				Open:   candle.Open,
-				High:   candle.High,
-				Low:    candle.Low,
-				Close:  candle.Close,
-				Volume: candle.Volume,
+				Date:             *&candle.Date,
+				Open:             candle.Open,
+				High:             candle.High,
+				Low:              candle.Low,
+				Close:            candle.Close,
+				Volume:           candle.Volume,
+				QuoteAssetVolume: candle.QuoteAssetVolume,
+				TakerBaseVolume:  candle.TakerBaseVolume,
+				TakerQuoteVolume: candle.TakerQuoteVolume,
 			}
 			periodSeries.AddCandle(fillCandle)
 			lastSubCandleDate = toPeriod.GetCloseDateForPeriod(candle.Date, fromPeriod).UnixMilli()
@@ -236,6 +239,9 @@ func (series *CandleSeries) ToPeriods(fromPeriod period.Period, toPeriod period.
 			fillCandle.Low = candle.Low
 		}
 		fillCandle.Volume += candle.Volume
+		fillCandle.QuoteAssetVolume += candle.QuoteAssetVolume
+		fillCandle.TakerBaseVolume += candle.TakerBaseVolume
+		fillCandle.TakerQuoteVolume += candle.TakerQuoteVolume
 		fillCandle.Close = candle.Close
 	}
 
@@ -267,6 +273,9 @@ func (series *CandleSeries) ToPeriodLastCandle(toPeriod period.Period) *Candle {
 		}
 		toCandle.Open = c.Open // ters döngü
 		toCandle.Volume += c.Volume
+		toCandle.QuoteAssetVolume += c.QuoteAssetVolume
+		toCandle.TakerBaseVolume += c.TakerBaseVolume
+		toCandle.TakerQuoteVolume += c.TakerQuoteVolume
 	}
 
 	return toCandle

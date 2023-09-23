@@ -16,8 +16,8 @@ func (z *Candle) DecodeMsg(dc *msgp.Reader) (err error) {
 		err = msgp.WrapError(err)
 		return
 	}
-	if zb0001 != 6 {
-		err = msgp.ArrayError{Wanted: 6, Got: zb0001}
+	if zb0001 != 9 {
+		err = msgp.ArrayError{Wanted: 9, Got: zb0001}
 		return
 	}
 	if dc.IsNil() {
@@ -60,6 +60,21 @@ func (z *Candle) DecodeMsg(dc *msgp.Reader) (err error) {
 	z.Volume, err = dc.ReadFloat64()
 	if err != nil {
 		err = msgp.WrapError(err, "Volume")
+		return
+	}
+	z.QuoteAssetVolume, err = dc.ReadFloat64()
+	if err != nil {
+		err = msgp.WrapError(err, "QuoteAssetVolume")
+		return
+	}
+	z.TakerBaseVolume, err = dc.ReadFloat64()
+	if err != nil {
+		err = msgp.WrapError(err, "TakerBaseVolume")
+		return
+	}
+	z.TakerQuoteVolume, err = dc.ReadFloat64()
+	if err != nil {
+		err = msgp.WrapError(err, "TakerQuoteVolume")
 		return
 	}
 	return
@@ -109,6 +124,21 @@ func (z *Candle) EncodeMsg(en *msgp.Writer) (err error) {
 		err = msgp.WrapError(err, "Volume")
 		return
 	}
+	err = en.WriteFloat64(z.QuoteAssetVolume)
+	if err != nil {
+		err = msgp.WrapError(err, "QuoteAssetVolume")
+		return
+	}
+	err = en.WriteFloat64(z.TakerBaseVolume)
+	if err != nil {
+		err = msgp.WrapError(err, "TakerBaseVolume")
+		return
+	}
+	err = en.WriteFloat64(z.TakerQuoteVolume)
+	if err != nil {
+		err = msgp.WrapError(err, "TakerQuoteVolume")
+		return
+	}
 	return
 }
 
@@ -127,6 +157,9 @@ func (z *Candle) MarshalMsg(b []byte) (o []byte, err error) {
 	o = msgp.AppendFloat64(o, z.Low)
 	o = msgp.AppendFloat64(o, z.Close)
 	o = msgp.AppendFloat64(o, z.Volume)
+	o = msgp.AppendFloat64(o, z.QuoteAssetVolume)
+	o = msgp.AppendFloat64(o, z.TakerBaseVolume)
+	o = msgp.AppendFloat64(o, z.TakerQuoteVolume)
 	return
 }
 
@@ -138,8 +171,8 @@ func (z *Candle) UnmarshalMsg(bts []byte) (o []byte, err error) {
 		err = msgp.WrapError(err)
 		return
 	}
-	if zb0001 != 6 {
-		err = msgp.ArrayError{Wanted: 6, Got: zb0001}
+	if zb0001 != 9 {
+		err = msgp.ArrayError{Wanted: 9, Got: zb0001}
 		return
 	}
 	if msgp.IsNil(bts) {
@@ -181,6 +214,21 @@ func (z *Candle) UnmarshalMsg(bts []byte) (o []byte, err error) {
 	z.Volume, bts, err = msgp.ReadFloat64Bytes(bts)
 	if err != nil {
 		err = msgp.WrapError(err, "Volume")
+		return
+	}
+	z.QuoteAssetVolume, bts, err = msgp.ReadFloat64Bytes(bts)
+	if err != nil {
+		err = msgp.WrapError(err, "QuoteAssetVolume")
+		return
+	}
+	z.TakerBaseVolume, bts, err = msgp.ReadFloat64Bytes(bts)
+	if err != nil {
+		err = msgp.WrapError(err, "TakerBaseVolume")
+		return
+	}
+	z.TakerQuoteVolume, bts, err = msgp.ReadFloat64Bytes(bts)
+	if err != nil {
+		err = msgp.WrapError(err, "TakerQuoteVolume")
 		return
 	}
 	o = bts

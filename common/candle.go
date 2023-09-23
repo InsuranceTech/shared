@@ -7,33 +7,42 @@ import (
 )
 
 type Candle struct {
-	Date   *time.Time
-	Open   float64
-	High   float64
-	Low    float64
-	Close  float64
-	Volume float64
+	Date             *time.Time
+	Open             float64
+	High             float64
+	Low              float64
+	Close            float64
+	Volume           float64
+	QuoteAssetVolume float64
+	TakerBaseVolume  float64
+	TakerQuoteVolume float64
 }
 
 func NewCandleF(t *time.Time, value float64) *Candle {
 	return &Candle{
-		Date:   t,
-		Open:   value,
-		High:   value,
-		Low:    value,
-		Close:  value,
-		Volume: value,
+		Date:             t,
+		Open:             value,
+		High:             value,
+		Low:              value,
+		Close:            value,
+		Volume:           value,
+		QuoteAssetVolume: value,
+		TakerBaseVolume:  value,
+		TakerQuoteVolume: value,
 	}
 }
 
 func NewCandleFP(t time.Time, value float64) *Candle {
 	return &Candle{
-		Date:   &t,
-		Open:   value,
-		High:   value,
-		Low:    value,
-		Close:  value,
-		Volume: value,
+		Date:             &t,
+		Open:             value,
+		High:             value,
+		Low:              value,
+		Close:            value,
+		Volume:           value,
+		QuoteAssetVolume: value,
+		TakerBaseVolume:  value,
+		TakerQuoteVolume: value,
 	}
 }
 
