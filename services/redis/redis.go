@@ -182,32 +182,32 @@ func GetDepthData(symbol *symbol.Symbol) (*depth.DepthData, error) {
 	return depthData, nil
 }
 
-func SaveLongShortRatioData(symbol *symbol.Symbol, data *ratio.TakeLongData) error {
+func SaveLongShortRatioDataSeries(symbol *symbol.Symbol, data *ratio.TakeLongDataSeries) error {
 	key := GetkeyLongShortRatio(symbol)
 	bytes, err := json.Marshal(data)
 	if err != nil {
-		_log.Error("SaveLongShortRatioData.MarshalMsg", err, symbol.ToString())
+		_log.Error("SaveLongShortRatioDataSeries.MarshalMsg", err, symbol.ToString())
 		return err
 	}
 	cmdStatus := Client.Set(context.Background(), key, bytes, 0)
 	if cmdStatus.Err() != nil {
-		_log.Error("SaveLongShortRatioData.Redis.Set", err, symbol.ToString())
+		_log.Error("SaveLongShortRatioDataSeries.Redis.Set", err, symbol.ToString())
 		return cmdStatus.Err()
 	}
 	return nil
 }
 
-func GetLongShortRatioData(symbol *symbol.Symbol) (*ratio.TakeLongData, error) {
+func GetLongShortRatioDataSeries(symbol *symbol.Symbol) (*ratio.TakeLongDataSeries, error) {
 	redisKey := GetkeyLongShortRatio(symbol)
 	cmdStatus := Client.Get(context.Background(), redisKey)
 	if cmdStatus.Err() != nil {
 		return nil, cmdStatus.Err()
 	}
 	bytes, _ := cmdStatus.Bytes()
-	data := &ratio.TakeLongData{}
+	data := &ratio.TakeLongDataSeries{}
 	err := json.Unmarshal(bytes, data)
 	if err != nil {
-		_log.Error("GetLongShortRatioData.UnmarshalMsg", err, symbol.ToString())
+		_log.Error("GetLongShortRatioDataSeries.UnmarshalMsg", err, symbol.ToString())
 		return nil, err
 	}
 	return data, nil
