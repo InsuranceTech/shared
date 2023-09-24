@@ -8,6 +8,7 @@ import (
 	"github.com/InsuranceTech/shared/common"
 	"github.com/InsuranceTech/shared/common/depth"
 	"github.com/InsuranceTech/shared/common/period"
+	"github.com/InsuranceTech/shared/common/ratio"
 	"github.com/InsuranceTech/shared/common/symbol"
 	"github.com/InsuranceTech/shared/config"
 	"github.com/InsuranceTech/shared/log"
@@ -83,6 +84,10 @@ func GetkeyIndicatorResult(symbol *symbol.Symbol, indicatorId int64) string {
 
 func GetkeyDepth(symbol *symbol.Symbol) string {
 	return fmt.Sprintf("%s:Depth", symbol.ToStringNoPeriod())
+}
+
+func GetkeyLongShortRatio(symbol *symbol.Symbol) string {
+	return fmt.Sprintf("%s:TLSR", symbol.ToString())
 }
 
 func GetkeyTick(symbol *symbol.Symbol) string {
@@ -175,6 +180,37 @@ func GetDepthData(symbol *symbol.Symbol) (*depth.DepthData, error) {
 		return nil, err
 	}
 	return depthData, nil
+}
+
+func SaveLongShortRatioData(symbol *symbol.Symbol, data *ratio.TakeLongData) error {
+	key := GetkeyLongShortRatio(symbol)
+	bytes, err := json.Marshal(data)
+	if err != nil {
+		_log.Error("SaveLongShortRatioData.MarshalMsg", err, symbol.ToString())
+		return err
+	}
+	cmdStatus := Client.Set(context.Background(), key, bytes, 0)
+	if cmdStatus.Err() != nil {
+		_log.Error("SaveLongShortRatioData.Redis.Set", err, symbol.ToString())
+		return cmdStatus.Err()
+	}
+	return nil
+}
+
+func GetLongShortRatioData(symbol *symbol.Symbol) (*ratio.TakeLongData, error) {
+	redisKey := GetkeyLongShortRatio(symbol)
+	cmdStatus := Client.Get(context.Background(), redisKey)
+	if cmdStatus.Err() != nil {
+		return nil, cmdStatus.Err()
+	}
+	bytes, _ := cmdStatus.Bytes()
+	data := &ratio.TakeLongData{}
+	err := json.Unmarshal(bytes, data)
+	if err != nil {
+		_log.Error("GetLongShortRatioData.UnmarshalMsg", err, symbol.ToString())
+		return nil, err
+	}
+	return data, nil
 }
 
 func SaveIndicatorResult(data *boosterModels.IndicatorResult) error {
