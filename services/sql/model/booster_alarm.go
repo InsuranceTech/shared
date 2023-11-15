@@ -2,7 +2,7 @@ package model
 
 import "time"
 
-type EAlarmStatus int
+type EAlarmStatus int16
 
 const (
 	AS_Nothing EAlarmStatus = -99
