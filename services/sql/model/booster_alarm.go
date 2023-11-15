@@ -11,12 +11,26 @@ const (
 	AS_Buy     EAlarmStatus = 1
 )
 
+type EAlarmChangeType int16
+
+const (
+	// AC_All Tüm renk değişimlerinde
+	AC_All EAlarmChangeType = -99
+	// AC_Sell Sadece kırmızıya döndüğünde
+	AC_Sell EAlarmChangeType = -1
+	// AC_Notr Sadece sarıya döndüğünde
+	AC_Notr EAlarmChangeType = 0
+	// AC_Buy Sadece yeşile döndüğünde
+	AC_Buy EAlarmChangeType = 1
+)
+
 type BoosterAlarm struct {
 	tableName       struct{}         `pg:"alarm.boosters"`
 	ID              int              `pg:"id,pk" json:"id,omitempty"`
 	UserID          int              `pg:"user_id" json:"user_id,omitempty"`
 	Name            string           `pg:"name" json:"name,omitempty"`
 	Symbol          string           `pg:"symbol" json:"symbol,omitempty"`
+	ChangeType      EAlarmChangeType `pg:"change_type" json:"change_type,omitempty"` // -99 : Tüm değişim, -1: Kırmızı, 0: Sarı, 1: Yeşil
 	TriggerCount    int              `pg:"trigger_count" json:"trigger_count,omitempty"`
 	LastTriggerTime *time.Time       `pg:"last_trigger" json:"last_trigger_time"`
 	StrategyID      int              `pg:"strategy_id" json:"strategy_id,omitempty"`
