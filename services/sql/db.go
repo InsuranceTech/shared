@@ -86,10 +86,6 @@ func GetAllIndicators() ([]*model.Indicator, error) {
 	return indicators, nil
 }
 
-func GetTestData() {
-
-}
-
 func UpdateTickData(symbol *symbol.Symbol, data *model2.BaseTickData) error {
 	conn := NewDBConn("")
 	defer conn.Close()
@@ -161,12 +157,14 @@ func GetAllIndicatorAlarms() ([]*model.AlarmIndicator, error) {
 	return indicators, nil
 }
 
-func GetAllBoosterAlarms() ([]*model.AlarmBooster, error) {
+func GetAllBoosterAlarms() ([]*model.BoosterAlarm, error) {
 	conn := NewDBConn("alarm")
 	defer conn.Close()
-	var boosters = make([]*model.AlarmBooster, 0)
+	var alarms = make([]*model.BoosterAlarm, 0)
 
-	err := conn.Model(&boosters).
+	err := conn.Model(&alarms).
+		Relation("BoosterStrategy").
+		Where("((end_of is null) or (end_of is not null and now() < end_of)) and enable = true").
 		Select()
 
 	if err != nil {
@@ -174,5 +172,5 @@ func GetAllBoosterAlarms() ([]*model.AlarmBooster, error) {
 		return nil, err
 	}
 
-	return boosters, nil
+	return alarms, nil
 }

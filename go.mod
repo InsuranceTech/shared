@@ -3,7 +3,7 @@ module github.com/InsuranceTech/shared
 go 1.20
 
 require (
-	github.com/go-pg/pg/v10 v10.11.0
+	github.com/go-pg/pg/v10 v10.11.2
 	github.com/korovkin/limiter v0.0.0-20230307205149-3d4b2b34c99d
 	github.com/nats-io/nats.go v1.25.0
 	github.com/redis/go-redis/v9 v9.0.3
