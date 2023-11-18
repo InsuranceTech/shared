@@ -425,6 +425,10 @@ func ClearAllIndicatorAlarms() (bool, error) {
 	}
 	keys, _ := scanCmd.Result()
 
+	if len(keys) == 0 {
+		return true, nil
+	}
+
 	cmd := Client.Del(_ctx, keys...)
 
 	if cmd.Err() != nil {
@@ -435,7 +439,7 @@ func ClearAllIndicatorAlarms() (bool, error) {
 }
 
 func GetAllBoosterAlarms() ([]*sqlModel.BoosterAlarm, error) {
-	scanCmd := Client.Keys(_ctx, _ALARM_INDICATOR_PREFIX+":*")
+	scanCmd := Client.Keys(_ctx, _ALARM_BOOSTER_PREFIX+":*")
 	if scanCmd.Err() != nil {
 		return nil, scanCmd.Err()
 	}
@@ -461,7 +465,7 @@ func SetAllBoosterAlarms(data []*sqlModel.BoosterAlarm) (bool, error) {
 	var items []interface{}
 	for _, i := range data {
 		bytes, _ := json.Marshal(i)
-		items = append(items, _ALARM_INDICATOR_PREFIX+":"+strconv.Itoa(i.ID), bytes)
+		items = append(items, _ALARM_BOOSTER_PREFIX+":"+strconv.Itoa(i.ID), bytes)
 	}
 	status := Client.MSet(_ctx, items)
 	if status.Err() != nil {
@@ -472,11 +476,15 @@ func SetAllBoosterAlarms(data []*sqlModel.BoosterAlarm) (bool, error) {
 }
 
 func ClearAllBoosterAlarms() (bool, error) {
-	scanCmd := Client.Keys(_ctx, _ALARM_INDICATOR_PREFIX+":*")
+	scanCmd := Client.Keys(_ctx, _ALARM_BOOSTER_PREFIX+":*")
 	if scanCmd.Err() != nil {
 		return false, scanCmd.Err()
 	}
 	keys, _ := scanCmd.Result()
+
+	if len(keys) == 0 {
+		return true, nil
+	}
 
 	cmd := Client.Del(_ctx, keys...)
 
