@@ -250,6 +250,9 @@ func (c *IndicatorResultCollection) Filters(exchangeType symbol.ExchangeType, pe
 func (c *IndicatorResultCollection) CheckAnd(symbol *symbol.Symbol, conditions []scanner.Condition) (bool, error) {
 	for _, condition := range conditions {
 		model := c.GetIndicatorsPFES(condition.FuncName, symbol)
+		if model == nil {
+			return false, nil
+		}
 		ok, err := model.CheckCondition(&condition)
 		if err != nil {
 			return false, err
