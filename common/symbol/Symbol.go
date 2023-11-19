@@ -134,6 +134,17 @@ func ParseSymbolEx(symbolExName string) (symbol *Symbol, ok bool) {
 	}
 }
 
+func ParseSymbols(symbolNames []string) []*Symbol {
+	list := make([]*Symbol, 0)
+	for _, name := range symbolNames {
+		s, ok := ParseSymbolEx(name)
+		if ok {
+			list = append(list, s)
+		}
+	}
+	return list
+}
+
 func stringToExchangeType(exchangeName string) ExchangeType {
 	exchangeName = strings.ToUpper(exchangeName)
 	if exchangeName == "BINANCE_SPOT" {
