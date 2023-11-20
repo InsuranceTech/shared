@@ -388,6 +388,10 @@ func GetAllIndicatorAlarms() ([]*sqlModel.AlarmIndicator, error) {
 	}
 	keys, _ := scanCmd.Result()
 
+	if len(keys) == 0 {
+		return make([]*sqlModel.AlarmIndicator, 0), nil
+	}
+
 	valuesCmd := Client.MGet(_ctx, keys...)
 	if valuesCmd.Err() != nil {
 		return nil, valuesCmd.Err()
@@ -444,6 +448,10 @@ func GetAllBoosterAlarms() ([]*sqlModel.BoosterAlarm, error) {
 		return nil, scanCmd.Err()
 	}
 	keys, _ := scanCmd.Result()
+
+	if len(keys) == 0 {
+		return make([]*sqlModel.BoosterAlarm, 0), nil
+	}
 
 	valuesCmd := Client.MGet(_ctx, keys...)
 	if valuesCmd.Err() != nil {
