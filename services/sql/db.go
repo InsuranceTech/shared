@@ -138,6 +138,10 @@ func NewDBConn(schema string) (con *pg.DB) {
 		},
 	}
 	con = pg.Connect(options)
+
+	if cfg.Postgresql.LOGGER {
+		con.AddQueryHook(QueryLogger{})
+	}
 	return con
 }
 

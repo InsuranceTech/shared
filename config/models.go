@@ -82,6 +82,7 @@ type Postgresql struct {
 	MAX_CONN   int    `mapstructure:"MAX_CONN,omitempty"`
 	DRIVER     string `mapstructure:"DRIVER,omitempty"`
 	SCHEMA     string `mapstructure:"SCHEMA,omitempty"`
+	LOGGER     bool   `mapstructure:"LOGGER,omitempty"`
 }
 
 // Mysql config
