@@ -469,7 +469,22 @@ func GetAllBoosterAlarms() ([]*sqlModel.BoosterAlarm, error) {
 	return results, nil
 }
 
-func SetAllBoosterAlarms(data []*sqlModel.BoosterAlarm) (bool, error) {
+func SetAllBoosterAlarmsP(data []*sqlModel.BoosterAlarm) (bool, error) {
+	var items []interface{}
+	for _, i := range data {
+		bytes, _ := json.Marshal(i)
+		items = append(items, _ALARM_BOOSTER_PREFIX+":"+strconv.Itoa(i.ID), bytes)
+	}
+	status := Client.MSet(_ctx, items)
+	if status.Err() != nil {
+		return false, status.Err()
+	} else {
+		return true, nil
+	}
+}
+
+// SetAllBoosterAlarms Pointersiz kullanım şart : alarmmanager sql bulk update için gerekti - yukarıdakinin aynısı
+func SetAllBoosterAlarms(data []sqlModel.BoosterAlarm) (bool, error) {
 	var items []interface{}
 	for _, i := range data {
 		bytes, _ := json.Marshal(i)
