@@ -15,7 +15,7 @@ type Symbol struct {
 	QuoteCoin      *Coin    `pg:"rel:has-one,fk:quote_id"`
 	ExchangeType   int      `pg:"exchange_type"`
 	Status         string   `pg:"status"`
-	Enabled        bool     `pg:"enabled"`
+	Enabled        bool     `pg:"enabled,use_zero"`
 	MinLot         float64  `pg:"min_lot"`
 	StepSize       float64  `pg:"step_size"`
 	MaxLot         float64  `pg:"max_lot"`
@@ -23,10 +23,10 @@ type Symbol struct {
 	TickSize       float64  `pg:"tick_size"`
 	MaxPrice       float64  `pg:"max_price"`
 	MinNotional    float64  `pg:"min_notional"`
-	CanBooster     bool     `pg:"can_booster"`
-	CanWhaleHunter bool     `pg:"can_whalehunter"`
-	CanScanner     bool     `pg:"can_scanner"`
-	CanTicker      bool     `pg:"can_ticker"`
+	CanBooster     bool     `pg:"can_booster,use_zero"`
+	CanWhaleHunter bool     `pg:"can_whalehunter,use_zero"`
+	CanScanner     bool     `pg:"can_scanner,use_zero"`
+	CanTicker      bool     `pg:"can_ticker,use_zero"`
 }
 
 func (s *Symbol) ToSymbol() *symbol.Symbol {

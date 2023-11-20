@@ -8,13 +8,13 @@ type Indicator struct {
 	Name            string          `pg:"name"`
 	Description     string          `pg:"description"`
 	FuncName        string          `pg:"func_name"`
-	CanBooster      bool            `pg:"can_booster"`
-	CanScanner      bool            `pg:"can_adv_filter"`
-	CanAlarm        bool            `pg:"can_alarm"`
-	CanBoosterTable bool            `pg:"can_booster_tbl"`
+	CanBooster      bool            `pg:"can_booster,use_zero"`
+	CanScanner      bool            `pg:"can_adv_filter,use_zero"`
+	CanAlarm        bool            `pg:"can_alarm,use_zero"`
+	CanBoosterTable bool            `pg:"can_booster_tbl,use_zero"`
 	BundleFuncName  string          `pg:"bundle_func_name"`
 	BundleOutName   string          `pg:"bundle_out_name"`
-	Status          bool            `pg:"status"`
+	Status          bool            `pg:"status,use_zero"`
 	Outs            []*IndicatorOut `pg:"rel:has-many,join_fk:indicator_id"`
 }
 
