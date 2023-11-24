@@ -76,6 +76,20 @@ func OnClosedCandleSymbol(symbol *symbol.Symbol, handler func(candle *common.Can
 	})
 }
 
+func OnChangedCandleSymbol(symbol *symbol.Symbol, handler func(candle *common.Candle)) {
+	subject := fmt.Sprintf("%s.ChangedCandle", symbol.ToString())
+	Client.Subscribe(subject, func(msg *nats.Msg) {
+		candle := &common.Candle{}
+		_, err := candle.UnmarshalMsg(msg.Data)
+		if err != nil {
+			panic(err)
+		}
+		go func() {
+			handler(candle)
+		}()
+	})
+}
+
 func OnClosedCandleSymbols(handler func(symbol *symbol.Symbol, candle *common.Candle)) {
 	subject := "*.ClosedCandle"
 	Client.Subscribe(subject, func(msg *nats.Msg) {
@@ -83,6 +97,25 @@ func OnClosedCandleSymbols(handler func(symbol *symbol.Symbol, candle *common.Ca
 		symbol, parseOk := symbol.ParseSymbolEx(_symbol)
 		if parseOk == false {
 			_log.Error("OnClosedCandleSymbols", "Symbol parse error : "+_symbol)
+		}
+		candle := &common.Candle{}
+		_, err := candle.UnmarshalMsg(msg.Data)
+		if err != nil {
+			panic(err)
+		}
+		go func() {
+			handler(symbol, candle)
+		}()
+	})
+}
+
+func OnChangedCandleSymbols(handler func(symbol *symbol.Symbol, candle *common.Candle)) {
+	subject := "*.ChangedCandle"
+	Client.Subscribe(subject, func(msg *nats.Msg) {
+		_symbol := msg.Header.Get("symbol")
+		symbol, parseOk := symbol.ParseSymbolEx(_symbol)
+		if parseOk == false {
+			_log.Error("OnChangedCandleSymbols", "Symbol parse error : "+_symbol)
 		}
 		candle := &common.Candle{}
 		_, err := candle.UnmarshalMsg(msg.Data)
@@ -217,6 +250,24 @@ func TriggerClosedCandle(symbol *symbol.Symbol, candle *common.Candle) {
 	err = Client.PublishMsg(&msg)
 	if err != nil {
 		_log.Error("TriggerClosedCandle", "PublishMsg", err)
+		return
+	}
+}
+
+func TriggerChangedCandle(symbol *symbol.Symbol, candle *common.Candle) {
+	candleBytes, err := candle.MarshalMsg(nil)
+	if err != nil {
+		_log.Error("TriggerChangedCandle", "Candle.MarshalMsg", err)
+		return
+	}
+	msg := nats.Msg{
+		Subject: fmt.Sprintf("%s.ChangedCandle", symbol.ToString()),
+		Header:  map[string][]string{"symbol": {symbol.ToString()}},
+		Data:    candleBytes,
+	}
+	err = Client.PublishMsg(&msg)
+	if err != nil {
+		_log.Error("TriggerChangedCandle", "PublishMsg", err)
 		return
 	}
 }
