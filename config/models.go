@@ -15,6 +15,7 @@ type Config struct {
 	Sentinel     Sentinel        `mapstructure:"sentinel,omitempty"`
 	Clickhouse   Clickhouse      `mapstructure:"clickhouse,omitempty"`
 	Firestore    Firestore       `mapstructure:"firestore,omitempty"`
+	Supabase     Supabase        `mapstructure:"supabase,omitempty"`
 	Binance      ProviderBinance `mapstructure:"binance,omitempty"`
 	Kraken       ProviderKraken  `mapstructure:"kraken,omitempty"`
 	FearandGreed FearAndGreed    `mapstructure:"fearandgreed,omitempty"`
@@ -156,6 +157,23 @@ type ProviderBinance struct {
 	API_SECRET                  string `mapstructure:"API_SECRET,omitempty"`
 	API_VER                     string `mapstructure:"API_VER,omitempty"`
 	FAPI_VER                    string `mapstructure:"FAPI_VER,omitempty"`
+}
+
+// Supabase config
+type Supabase struct {
+	API_URL        string `mapstructure:"API_URL,omitempty"`
+	API_KEY        string `mapstructure:"API_KEY,omitempty"`
+	AUTH_JWT       string `mapstructure:"AUTH_JWT,omitempty"`
+	REST_PATH      string `mapstructure:"REST_PATH,omitempty"`
+	HOST           string `mapstructure:"HOST,omitempty"`
+	PORT           int    `mapstructure:"PORT,omitempty"`
+	USER           string `mapstructure:"USER,omitempty"`
+	PASS           string `mapstructure:"PASS,omitempty"`
+	DEFAULT_DB     string `mapstructure:"DEFAULT_DB,omitempty"`
+	DEFAULT_SCHEMA string `mapstructure:"DEFAULT_SCHEMA,omitempty"`
+	MAX_CONN       int    `mapstructure:"MAX_CONN,omitempty"`
+	MAX_IDLE_CONN  int    `mapstructure:"MAX_IDLE_CONN,omitempty"`
+	DRIVER         string `mapstructure:"DRIVER,omitempty"`
 }
 
 // Binance config
