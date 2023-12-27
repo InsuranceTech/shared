@@ -36,6 +36,7 @@ type Swagger struct {
 type Server struct {
 	PROJECT_NAME          string        `mapstructure:"PROJECT_NAME,omitempty"`
 	SERVICE_NAME          string        `mapstructure:"SERVICE_NAME,omitempty"`
+	REALTIME_ENGINE       string        `mapstructure:"REALTIME_ENGINE,omitempty"`
 	APP_ENV               string        `mapstructure:"APP_ENV,omitempty"`
 	APP_DEBUG             bool          `mapstructure:"APP_DEBUG,omitempty"`
 	APP_PROXY             bool          `mapstructure:"APP_PROXY,omitempty"`
