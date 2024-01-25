@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	_log      = log.CreateTag("Sql")
+	_log      = log.CreateTag("Sqs")
 	sqsClient *sqs.Client
 )
 
