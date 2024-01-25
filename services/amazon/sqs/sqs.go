@@ -14,11 +14,12 @@ import (
 
 var (
 	_log      = log.CreateTag("Sqs")
+	ctx       context.Context
 	sqsClient *sqs.Client
 )
 
 // NewAwsSqs Return new AWS Simple Queue System instance
-func NewAwsSqs(ctx context.Context, region string) {
+func NewAwsSqs(context context.Context, region string) {
 
 	cfg_sqs, err := config.LoadDefaultConfig(ctx, config.WithRegion(region))
 	if err != nil {
@@ -28,11 +29,12 @@ func NewAwsSqs(ctx context.Context, region string) {
 	client := sqs.NewFromConfig(cfg_sqs)
 	println("SQS Client Initialized")
 
+	ctx = context
 	sqsClient = client
 	return
 }
 
-func SendPushNotification(ctx context.Context, req_body model.NotifyBaseRequest) (record int64) {
+func SendPushNotification(req_body model.NotifyBaseRequest) (record int64) {
 	var urlResult *sqs.GetQueueUrlOutput
 	var msgBody []byte
 	var err error
