@@ -14,6 +14,7 @@ type Config struct {
 	Redis        Redis           `mapstructure:"redis,omitempty"`
 	Sentinel     Sentinel        `mapstructure:"sentinel,omitempty"`
 	Clickhouse   Clickhouse      `mapstructure:"clickhouse,omitempty"`
+	Sqs          Sqs             `mapstructure:"sqs,omitempty"`
 	Firestore    Firestore       `mapstructure:"firestore,omitempty"`
 	Supabase     Supabase        `mapstructure:"supabase,omitempty"`
 	Binance      ProviderBinance `mapstructure:"binance,omitempty"`
@@ -138,6 +139,16 @@ type Clickhouse struct {
 	USER       string `mapstructure:"USER,omitempty"`
 	PASS       string `mapstructure:"PASS,omitempty"`
 	DEFAULT_DB string `mapstructure:"DEFAULT_DB,omitempty"`
+}
+
+// Sqs AWS SQS Keys
+type Sqs struct {
+	REGION                string `mapstructure:"REGION,omitempty"`
+	APP_ID                string `mapstructure:"APP_ID,omitempty"`
+	AWS_ACCESS_KEY_ID     string `mapstructure:"AWS_ACCESS_KEY_ID,omitempty"`
+	AWS_SECRET_ACCESS_KEY string `mapstructure:"AWS_SECRET_ACCESS_KEY,omitempty"`
+	SMS_NORMAL_QUEUE      string `mapstructure:"SMS_NORMAL_QUEUE,omitempty"`
+	SMS_OTP_QUEUE         string `mapstructure:"SMS_OTP_QUEUE,omitempty"`
 }
 
 // Firestore config
