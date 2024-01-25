@@ -1,7 +1,6 @@
 package model
 
 type NotifyBaseRequest struct {
-	AppId    string `json:"app_id" validate:"required"`
 	FcmToken string `json:"fcm_token" validate:"required"`
 	Title    string `json:"title" validate:"required"`
 	Message  string `json:"message" validate:"required"`

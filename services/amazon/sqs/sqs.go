@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	appConfig "github.com/InsuranceTech/shared/config"
+
 	"github.com/InsuranceTech/shared/log"
 	"github.com/InsuranceTech/shared/services/amazon/sqs/model"
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -15,11 +17,12 @@ import (
 var (
 	_log      = log.CreateTag("Sqs")
 	ctx       context.Context
+	cfg       *appConfig.Config
 	sqsClient *sqs.Client
 )
 
 // NewAwsSqs Return new AWS Simple Queue System instance
-func NewAwsSqs(context context.Context, region string) {
+func NewAwsSqs(context context.Context, appConfig *appConfig.Config, region string) {
 
 	cfg_sqs, err := config.LoadDefaultConfig(ctx, config.WithRegion(region))
 	if err != nil {
@@ -30,6 +33,7 @@ func NewAwsSqs(context context.Context, region string) {
 	println("SQS Client Initialized")
 
 	ctx = context
+	cfg = appConfig
 	sqsClient = client
 	return
 }
@@ -67,7 +71,7 @@ func SendPushNotification(req_body model.NotifyBaseRequest) (record int64) {
 		}
 	*/
 	msgCompose := model.ComposePushMessage{
-		ApplicationId: req_body.AppId,
+		ApplicationId: cfg.Sqs.APP_ID,
 		Action:        "URL",
 		Image:         "",
 		Icon:          "",
