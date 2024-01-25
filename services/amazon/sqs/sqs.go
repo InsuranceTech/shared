@@ -22,9 +22,9 @@ var (
 )
 
 // NewAwsSqs Return new AWS Simple Queue System instance
-func NewAwsSqs(context context.Context, appConfig *appConfig.Config, region string) {
+func NewAwsSqs(context context.Context, appConfig *appConfig.Config) {
 
-	cfg_sqs, err := config.LoadDefaultConfig(ctx, config.WithRegion(region))
+	cfg_sqs, err := config.LoadDefaultConfig(ctx, config.WithRegion(appConfig.Sqs.REGION))
 	if err != nil {
 		panic("configuration error, " + err.Error())
 	}
