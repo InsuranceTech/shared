@@ -4,7 +4,7 @@ type UserInfo struct {
 	tableName struct{}    `pg:"auth.users"`
 	ID        int64       `pg:"id,pk" json:"id,omitempty"`
 	UserLang  string      `pg:"lang_code" json:"lang_code,omitempty"`
-	FcmTokens []*FcmToken `pg:"rel:has-many,join_fk:id"`
+	FcmTokens []*FcmToken `pg:"rel:has-many,join_fk:user_id"`
 }
 
 type FcmToken struct {
