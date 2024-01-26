@@ -36,7 +36,7 @@ type BoosterAlarm struct {
 	StrategyID      int              `pg:"strategy_id" json:"strategy_id,omitempty"`
 	NeedCount       int              `pg:"need_count" json:"need_count,omitempty"`
 	Triggered       bool             `pg:"triggered,use_zero" json:"triggered,omitempty"`
-	TriggeredStatus *EAlarmStatus    `pg:"triggered_status" json:"triggered_status,omitempty"`
+	TriggeredStatus *EAlarmStatus    `pg:"triggered_status" json:"triggered_status"`
 	EndOf           *time.Time       `pg:"end_of" json:"end_of,omitempty"`
 	Enable          bool             `pg:"enable,use_zero" json:"enable,omitempty"`
 	BoosterStrategy *BoosterStrategy `pg:"rel:has-one,fk:strategy_id"`
