@@ -15,4 +15,5 @@ type AlarmIndicator struct {
 	LastTriggerTime time.Time           `pg:"last_trigger" json:"last_trigger_time"`
 	Conditions      []scanner.Condition `pg:"conditions,array" json:"conditions,omitempty"`
 	FcmTokens       []*FcmToken         `pg:"rel:has-many,fk:user_id"`
+	UserLang        *UserLangCode       `pg:"rel:has-one,fk:user_id"`
 }

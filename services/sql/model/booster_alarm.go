@@ -41,4 +41,5 @@ type BoosterAlarm struct {
 	Enable          bool             `pg:"enable,use_zero" json:"enable,omitempty"`
 	BoosterStrategy *BoosterStrategy `pg:"rel:has-one,fk:strategy_id"`
 	FcmTokens       []*FcmToken      `pg:"rel:has-many,fk:user_id"`
+	UserLang        *UserLangCode    `pg:"rel:has-one,fk:user_id"`
 }
