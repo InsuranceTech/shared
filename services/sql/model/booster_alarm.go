@@ -40,6 +40,6 @@ type BoosterAlarm struct {
 	EndOf           *time.Time       `pg:"end_of" json:"end_of,omitempty"`
 	Enable          bool             `pg:"enable,use_zero" json:"enable,omitempty"`
 	BoosterStrategy *BoosterStrategy `pg:"rel:has-one,fk:strategy_id"`
-	FcmTokens       []*FcmToken      `pg:"rel:has-many,join_fk:user_id"`
+	FcmTokens       []*FcmToken      `pg:"rel:has-many,fk:user_id"`
 	UserInfo        *UserInfo        `pg:"rel:has-one,fk:user_id"`
 }
