@@ -14,5 +14,5 @@ type AlarmIndicator struct {
 	TriggerCount    int                 `pg:"trigger_count" json:"trigger_count,omitempty"`
 	LastTriggerTime time.Time           `pg:"last_trigger" json:"last_trigger_time"`
 	Conditions      []scanner.Condition `pg:"conditions,array" json:"conditions,omitempty"`
-	UserInfo        *UserInfo           `pg:"rel:has-one,fk:user_id"`
+	UserInfo        *UserInfo           `pg:"rel:has-one,fk:id"`
 }
