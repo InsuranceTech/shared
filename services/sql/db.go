@@ -10,6 +10,7 @@ import (
 	model2 "github.com/InsuranceTech/shared/services/redis/model"
 	"github.com/InsuranceTech/shared/services/sql/model"
 	"github.com/go-pg/pg/v10"
+	"github.com/go-pg/pg/v10/orm"
 	"strconv"
 )
 
@@ -151,7 +152,11 @@ func GetAllIndicatorAlarms() ([]*model.AlarmIndicator, error) {
 	var indicators = make([]*model.AlarmIndicator, 0)
 
 	err := conn.Model(&indicators).
-		Relation("UserInfo").
+		Relation("UserInfo", func(query *orm.Query) (*orm.Query, error) {
+			subQuery := query.
+				Relation("FcmTokens")
+			return subQuery, nil
+		}).
 		Select()
 
 	if err != nil {
@@ -169,7 +174,11 @@ func GetAllBoosterAlarms() ([]*model.BoosterAlarm, error) {
 
 	err := conn.Model(&alarms).
 		Relation("BoosterStrategy").
-		Relation("UserInfo").
+		Relation("UserInfo", func(query *orm.Query) (*orm.Query, error) {
+			subQuery := query.
+				Relation("FcmTokens")
+			return subQuery, nil
+		}).
 		Where("((end_of is null) or (end_of is not null and now() < end_of)) and enable = true").
 		Select()
 
