@@ -83,7 +83,7 @@ func SendPushNotification(req_body model.NotifyBaseRequest) (record int64) {
 		Destination: req_body.FcmToken,
 		Title:       req_body.Title,
 		Message:     req_body.Message,
-		Url:         "app.finderex.io",
+		Url:         "https://app.finderex.io/",
 	}
 	msgBody, err = json.Marshal(msgCompose)
 
