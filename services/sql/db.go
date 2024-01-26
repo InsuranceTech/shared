@@ -169,7 +169,9 @@ func GetAllBoosterAlarms() ([]*model.BoosterAlarm, error) {
 
 	err := conn.Model(&alarms).
 		Relation("BoosterStrategy").
-		Relation("UserInfo").
+		Relation("UserInfo", func(q *pg.Query) (*pg.Query, error) {
+			return q.Where("TRUE"), nil
+		}).
 		Where("((end_of is null) or (end_of is not null and now() < end_of)) and enable = true").
 		Select()
 

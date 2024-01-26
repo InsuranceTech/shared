@@ -12,7 +12,7 @@ type Symbol struct {
 	BaseID         int      `pg:"base_id"`
 	BaseCoin       *Coin    `pg:"rel:has-one,fk:base_id"`
 	QuoteID        int      `pg:"quote_id"`
-	QuoteCoin      *Coin    `pg:"rel:has-one,fk:quote_id"`
+	QuoteCoin      *Coin    `pg:"rel:has-one,fk:quoteF_id"`
 	ExchangeType   int      `pg:"exchange_type"`
 	Status         string   `pg:"status"`
 	Enabled        bool     `pg:"enabled,use_zero"`
