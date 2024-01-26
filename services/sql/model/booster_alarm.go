@@ -27,7 +27,7 @@ const (
 type BoosterAlarm struct {
 	tableName       struct{}         `pg:"alarm.boosters"`
 	ID              int              `pg:"id,pk" json:"id,omitempty"`
-	UserID          int              `pg:"user_id" json:"user_id,omitempty"`
+	UserID          int              `pg:"user_id,fk" json:"user_id,omitempty"`
 	Name            string           `pg:"name" json:"name,omitempty"`
 	Symbol          string           `pg:"symbol" json:"symbol,omitempty"`
 	ChangeType      EAlarmChangeType `pg:"change_type" json:"change_type,omitempty"` // -99 : Tüm değişim, -1: Kırmızı, 0: Sarı, 1: Yeşil
