@@ -152,6 +152,7 @@ func GetAllIndicatorAlarms() ([]*model.AlarmIndicator, error) {
 
 	err := conn.Model(&indicators).
 		Relation("UserInfo").
+		Relation("FcmTokens").
 		Select()
 
 	if err != nil {
@@ -170,6 +171,7 @@ func GetAllBoosterAlarms() ([]*model.BoosterAlarm, error) {
 	err := conn.Model(&alarms).
 		Relation("BoosterStrategy").
 		Relation("UserInfo").
+		Relation("FcmTokens").
 		Where("((end_of is null) or (end_of is not null and now() < end_of)) and enable = true").
 		Select()
 
