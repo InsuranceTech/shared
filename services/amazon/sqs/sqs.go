@@ -73,8 +73,8 @@ func SendPushNotification(req_body model.NotifyBaseRequest) (record int64) {
 	msgCompose := model.ComposePushMessage{
 		ApplicationId: cfg.Sqs.APP_ID,
 		Action:        "URL",
-		Image:         "https://app.finderex.io/favicon.ico",
-		Icon:          "https://app.finderex.io/favicon.ico",
+		Image:         "https://d2bzwhll71mdyx.cloudfront.net/icons/packages/push-header.jpg",
+		Icon:          "https://d2bzwhll71mdyx.cloudfront.net/icons/packages/finderex-push-icon.jpg",
 		Data: map[string]string{
 			"user_title": "test",
 			"created_at": fmt.Sprintf("%s", time.Now().In(timezone)),
@@ -83,6 +83,8 @@ func SendPushNotification(req_body model.NotifyBaseRequest) (record int64) {
 		Destination: req_body.FcmToken,
 		Title:       req_body.Title,
 		Message:     req_body.Message,
+		CategoryId:  req_body.CategoryId,
+		UserId:      req_body.UserId,
 		Url:         "https://app.finderex.io/",
 	}
 	msgBody, err = json.Marshal(msgCompose)
